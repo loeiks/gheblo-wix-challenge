@@ -1,0 +1,31 @@
+table {
+    width: auto;
+    border-collapse: collapse;
+    border-radius: 6px;
+}
+
+th, td {
+    min-height: 20%;
+    font: var(--font_8);
+    border: 1px solid #bec9c6;
+    text-align: left;
+    padding: 6px;
+}
+
+th {
+    font-weight: 500;
+    background-color: #f7faf8;
+}
+
+@keyframes rotateAnimation {
+    from {
+        transform: rotate(180deg);
+    }
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+.rotated-element {
+    animation: rotateAnimation 1s ease-in-out forwards; 
+}
