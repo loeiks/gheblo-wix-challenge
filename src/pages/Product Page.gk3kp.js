@@ -11,6 +11,8 @@ import { getProductData } from 'backend/Products/helpers.web.js';
 // Import View Renderers
 import { renderDesktopView, setupDesktopStateEvents } from 'public/ProductPage/desktop.js';
 import { renderMobileView, setupMobileStateEvents } from 'public/ProductPage/mobile.js';
+// Import Helpers
+import { showNotifier } from 'public/notifier';
 
 // Icon URLs
 const expandedIcon = "https://static.wixstatic.com/media/510eca_3eea9158450d428aaa75dc0bda96705a~mv2.png";
@@ -25,6 +27,11 @@ const productDataStore = (store) => {
 
     store.on("renderDesktopView", renderDesktopView);
     store.on("renderMobileView", renderMobileView);
+
+    // Notifier function in state manager
+    store.on("notify", (state, notifierData) => {
+        showNotifier(notifierData);
+    });
 };
 
 // Create State
@@ -48,14 +55,6 @@ async function initPage() {
     // Render Both Views
     dispatch("renderDesktopView", appState);
     dispatch("renderMobileView", appState);
-
-    // if (formFactor === ("Desktop" || "Tablet")) {
-    //     // Render for Desktop
-    //     dispatch("renderDesktopView", appState);
-    // } else {
-    //     // Render for Mobile
-    //     dispatch("renderMobileView", appState);
-    // }
 }
 
 function setupStateEvents() {

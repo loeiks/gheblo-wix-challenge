@@ -47,3 +47,29 @@ th {
 .selected-color {
     border: 1px solid black;
 }
+
+/* Notifier Styles Start */
+
+.notifier-standart {
+    background-color: #006a63;
+}
+
+.notifier-success {
+    background-color: #006c4f;
+    border-color: #004431;
+}
+
+.notifier-error {
+    background-color: #ba1a1a;
+    border-color: #7e0007;
+}
+
+.notifier-urgent {
+    background-color: #a93800;
+    border-color: #6e2100;
+}
+
+.notifier-warning {
+    background-color: #7c5800;
+    border-color: #4f3700;
+}

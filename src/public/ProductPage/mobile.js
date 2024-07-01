@@ -15,7 +15,7 @@ import { openLightbox } from 'wix-window-frontend';
  * @returns {void} Returns nothing it's just a void 
  */
 export function renderMobileView(state, store) {
-    // $w('#desktopMainSection, #productPageWidgetSection').delete();
+    $w('#productPageWidgetSection').delete();
     setupPageView(state, store);
 }
 

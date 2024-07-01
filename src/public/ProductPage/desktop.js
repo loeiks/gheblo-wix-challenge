@@ -14,7 +14,7 @@ import { cart } from 'wix-stores-frontend';
  * @returns {void} Returns nothing it's just a void 
  */
 export function renderDesktopView(state, store) {
-    // $w('#mobileImagesSection, #mobileInfoSection, #productPageWidgetSection').delete();
+    $w('#productPageWidgetSection').delete();
     setupPageView(state, store);
 }
 
@@ -255,7 +255,11 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
                 options: {
                     choices: _currentChoices
                 }
-            }]);
+            }]).then(() => {
+                dispatch("notify", { message: "You have added product to your cart!", type: "success" });
+            });
+        } else {
+            dispatch("notify", { message: "You haven't picked required selections yet!", type: "warning" });
         }
     });
 }
