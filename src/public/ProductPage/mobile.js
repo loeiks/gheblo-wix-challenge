@@ -169,8 +169,11 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
         openLightbox("MobileColorSelection", getState()).then(({
             _currentModelInfo,
             _currentImagesOfProduct,
-            _currentChoices
+            _currentChoices,
+            selectedColorData
         }) => {
+            moveSelectedColorToFirstPlace(selectedColorData, { getState, setState });
+
             setState({ _currentModelInfo });
             setState({ _currentImagesOfProduct });
             setState({ _currentChoices });
@@ -298,4 +301,17 @@ function updateColorSelections(productImagesByColor) {
     // Only show 3 items maximum in mobile because selector is in lightbox and something more than 3 won't fit in mobile
     $w('#mobileColorSelectionRepeater').data = productImagesByColor.map((item) => { return { ...item, _id: uuidv4() } }).slice(0, 3);
     $w('#mobileColorSelectionRepeater').expand();
+}
+
+function moveSelectedColorToFirstPlace(selectedColorData, { getState, setState }) {
+    // Find the index of the object
+    const productImagesByColor = getState().productImagesByColor;
+    const index = productImagesByColor.findIndex(item => isEqual(item, selectedColorData));
+
+    if (index > 0) {
+        // Remove the object from its current position
+        const [object] = productImagesByColor.splice(index, 1);
+        productImagesByColor.unshift(object);
+        setState({ productImagesByColor });
+    }
 }

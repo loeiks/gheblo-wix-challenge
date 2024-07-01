@@ -42,7 +42,8 @@ $w.onReady(function () {
             lightbox.close({
                 _currentModelInfo,
                 _currentImagesOfProduct,
-                _currentChoices
+                _currentChoices,
+                selectedColorData: itemData
             });
         }, 150);
     })
