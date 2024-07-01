@@ -1,8 +1,9 @@
 import { useScope } from 'repeater-scope';
 import { calculateDiscountPercentage } from './helpers';
 import { v4 as uuidv4 } from 'uuid';
-import { isEqual, keys } from 'lodash';
+import { isEqual, keys, isEmpty } from 'lodash';
 import { cart } from 'wix-stores-frontend';
+import { addProductToFavs } from 'backend/Products/favs';
 
 /**
  * @function
@@ -20,7 +21,7 @@ export function renderDesktopView(state, store) {
 
 // PAGE SETUP FOR ONE TIME
 function setupPageView(state, { dispatch, setState, getState, connect }) {
-    if (state.productOptions["Color"]) {
+    if (state.productOptions["Color"] && isEmpty(state._currentChoices)) {
         const defaultColorSelection = state.productOptions["Color"].choices[0].description;
         setState({ _currentChoices: { ...getState()._currentChoices, "Color": defaultColorSelection } });
     }
@@ -140,7 +141,16 @@ export function setupDesktopStateEvents(state, { dispatch, setState, getState, c
 
     // Update variant based SKU in case of there is a different SKU for that variant
     connect("_currentVariant", ({ _currentVariant }) => {
-        $w('#productSku').text = `Product SKU: ${_currentVariant.sku}`;
+        if (_currentVariant) {
+            $w('#productSku').text = `Product SKU: ${_currentVariant.sku}`;
+        }
+    });
+
+    connect("_isProductInFavs", ({ _isProductInFavs }) => {
+        if (_isProductInFavs) {
+            $w('#atfButton').customClassList.add("in-favs");
+            $w('#atfButton').icon = getState()._pageIcons.inFavsIcon;
+        }
     });
 }
 
@@ -262,6 +272,14 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
             dispatch("notify", { message: "You haven't picked required selections yet!", type: "warning" });
         }
     });
+
+    // Add to wishlist/favs button
+    $w('#atfButton').onClick(async () => {
+        const { _id } = getState();
+        addProductToFavs(_id);
+        $w('#atfButton').customClassList.add("in-favs");
+        $w('#atfButton').icon = getState()._pageIcons.inFavsIcon;
+    })
 }
 
 // HELPER FUNCTIONS

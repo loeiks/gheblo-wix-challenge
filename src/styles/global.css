@@ -1,3 +1,4 @@
+/* Product Page Info Section Styling Start */
 table {
     width: auto;
     border-collapse: collapse;
@@ -31,11 +32,9 @@ th {
 .rotated-element {
     animation: rotateAnimation 1s ease-in-out forwards;
 }
+/* Product Page Info Section Styling End */
 
-.ai-chat>div>div {
-    flex-direction: column-reverse !important;
-}
-
+/* Product Page Styling Start */
 .selected-size {
     border-color: black;
 }
@@ -48,28 +47,51 @@ th {
     border: 1px solid black;
 }
 
-/* Notifier Styles Start */
+.in-favs {
+    background-color: #006a63;
+}
 
+.in-favs span {
+    color: white;
+}
+
+.in-favs svg {
+    fill: white;
+}
+/* Product Page Styling End */
+
+/* Notifier Styles Start */
 .notifier-standart {
     background-color: #006a63;
 }
 
 .notifier-success {
     background-color: #006c4f;
-    border-color: #004431;
 }
 
 .notifier-error {
     background-color: #ba1a1a;
-    border-color: #7e0007;
 }
 
 .notifier-urgent {
     background-color: #a93800;
-    border-color: #6e2100;
 }
 
 .notifier-warning {
     background-color: #7c5800;
-    border-color: #4f3700;
 }
+/* Notifier Styles End */
+
+/* AI Agent Styling Start */
+.ai-chat>div>div {
+    flex-direction: column-reverse !important;
+}
+
+.ai-chat-box {
+    border-left: 1px solid #c1c7ce;
+}
+
+.ai-message-box {
+    width: auto !important;
+}
+/* AI Agent Styling End */

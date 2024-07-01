@@ -1,9 +1,10 @@
 import { useScope, updateItem } from 'repeater-scope';
 import { calculateDiscountPercentage } from './helpers';
 import { v4 as uuidv4 } from 'uuid';
-import { isEqual, keys } from 'lodash';
+import { isEmpty, isEqual, keys } from 'lodash';
 import { cart } from 'wix-stores-frontend';
 import { openLightbox } from 'wix-window-frontend';
+import { addProductToFavs } from 'backend/Products/favs';
 
 /**
  * @function
@@ -21,7 +22,7 @@ export function renderMobileView(state, store) {
 
 // PAGE SETUP FOR ONE TIME
 function setupPageView(state, { dispatch, setState, getState, connect }) {
-    if (state.productOptions["Color"]) {
+    if (state.productOptions["Color"] && isEmpty(state._currentChoices)) {
         const defaultColorSelection = state.productOptions["Color"].choices[0].description;
         setState({ _currentChoices: { ...getState()._currentChoices, "Color": defaultColorSelection } });
     }
@@ -141,7 +142,16 @@ export function setupMobileStateEvents(state, { dispatch, setState, getState, co
 
     // Update variant based SKU in case of there is a different SKU for that variant
     connect("_currentVariant", ({ _currentVariant }) => {
-        $w('#mobileProductSku').text = `Product SKU: ${_currentVariant.sku}`;
+        if (_currentVariant) {
+            $w('#mobileProductSku').text = `Product SKU: ${_currentVariant.sku}`;
+        }
+    });
+
+    connect("_isProductInFavs", ({ _isProductInFavs }) => {
+        if (_isProductInFavs) {
+            $w('#mobileAtfButton').customClassList.add("in-favs");
+            $w('#mobileAtfButton').icon = getState()._pageIcons.inFavsIcon;
+        }
     });
 }
 
@@ -254,7 +264,11 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
                 options: {
                     choices: _currentChoices
                 }
-            }]);
+            }]).then(() => {
+                dispatch("notify", { message: "You have added product to your cart!", type: "success" });
+            });
+        } else {
+            dispatch("notify", { message: "You haven't picked required selections yet!", type: "warning" });
         }
     });
 
@@ -263,6 +277,14 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
         if (itemData.alt) {
             $item('#mobileImage').alt = itemData.alt;
         }
+    });
+
+    // Add to wishlist/favs button
+    $w('#mobileAtfButton').onClick(async () => {
+        const { _id } = getState();
+        addProductToFavs(_id);
+        $w('#mobileAtfButton').customClassList.add("in-favs");
+        $w('#mobileAtfButton').icon = getState()._pageIcons.inFavsIcon;
     })
 }
 
