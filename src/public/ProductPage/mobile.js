@@ -255,6 +255,8 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
 
     // Add to cart button
     $w('#mobileAtcButton').onClick(() => {
+        $w('#mobileAtcButton').disable();
+        
         const { _currentVariant, _id, _currentChoices } = getState();
 
         if (_currentVariant) {
@@ -266,9 +268,11 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
                 }
             }]).then(() => {
                 dispatch("notify", { message: "You have added product to your cart!", type: "success" });
+                $w('#mobileAtcButton').enable();
             });
         } else {
             dispatch("notify", { message: "You haven't picked required selections yet!", type: "warning" });
+            $w('#mobileAtcButton').enable();
         }
     });
 

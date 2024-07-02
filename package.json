@@ -11,6 +11,7 @@
     "@google/generative-ai": "^0.14.0",
     "lodash": "4.17.21",
     "marked": "^13.0.1",
+    "moment": "^2.30.1",
     "mongodb": "^6.8.0",
     "repeater-scope": "3.0.0",
     "storeon-velo": "4.1.3",
