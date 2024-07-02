@@ -226,9 +226,13 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
 
 // HELPER FUNCTIONS
 async function handleCurrentMemberProfilePhoto(getState, setState) {
-    if (!getState()._currentMemberData && authentication.loggedIn) {
+    const { _currentMemberData, _currentMemberDataInUpdate } = getState();
+
+    if (!_currentMemberData && authentication.loggedIn && !_currentMemberDataInUpdate) {
+        setState({ _currentMemberDataInUpdate: true });
         const memberData = await getCurrentMemberProfileData();
         setState({ _currentMemberData: memberData });
+        setState({ _currentMemberDataInUpdate: false });
     }
 }
 
