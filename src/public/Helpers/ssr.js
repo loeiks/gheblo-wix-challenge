@@ -9,9 +9,7 @@ import { warmupData, rendering } from 'wix-window-frontend';
 export const ssRedering = async (key, func) => {
     if (rendering.env === 'backend') {
         const data = await func();
-
         warmupData.set(key, data);
-
         return data;
     }
 

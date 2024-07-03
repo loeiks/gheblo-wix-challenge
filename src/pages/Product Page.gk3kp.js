@@ -6,12 +6,9 @@ import { formFactor } from 'wix-window-frontend';
 // Import NPM Packages
 import { createStoreon } from 'storeon-velo';
 // Import Backend Functions
-import { getProductData } from 'backend/Products/helpers.web';
 import { getGenAIResponse } from 'backend/AI/ai_chat.web';
+import { getProductPageData } from 'backend/Pages/productPage.web';
 import { checkIsInFavs } from 'backend/Products/favs.web';
-import { getSuggestedPrompts } from 'backend/AI/ai_chat.web';
-import { queryProductDiscussions } from 'backend/Discussions/discussions.web';
-import { queryReviews } from 'backend/Reviews/reviews.web';
 // Import View Renderers
 import { renderDesktopView, setupDesktopStateEvents } from 'public/ProductPage/desktop.js';
 import { renderMobileView, setupMobileStateEvents } from 'public/ProductPage/mobile.js';
@@ -85,19 +82,13 @@ const { getState, setState, dispatch, connect, readyStore } = appState;
 
 $w.onReady(async function () {
     // Load required data with SSR
-    const [
+    const {
         productData,
-        favStatus,
         suggestedPrompts,
         productDiscussions,
         productReviews
-    ] = await Promise.all([
-        ssRedering("productData", getProductDataBySlug),
-        ssRedering("favStatus", checkProductFavStatus),
-        ssRedering("suggestedPrompts", getSuggestedPrompts),
-        ssRedering("productDiscussions", getProductDiscussions),
-        ssRedering("productReviews", getProductReviews)
-    ]);
+    } = await ssRedering("productPageData", getProductPageDetails);
+    const favStatus = await ssRedering("favStatus", checkProductFavStatus);
 
     initPage({
         productData,
@@ -160,6 +151,11 @@ function setupStateEvents() {
 }
 
 // HELPER FUNCTIONS
+async function getProductPageDetails() {
+    const slug = path[1];
+    return await getProductPageData(slug);
+}
+
 async function checkProductFavStatus() {
     const isLoggedIn = authentication.loggedIn();
 
@@ -169,20 +165,4 @@ async function checkProductFavStatus() {
     } else {
         return false;
     }
-}
-
-async function getProductDataBySlug() {
-    const slug = path[1];
-    const productData = await getProductData(slug);
-    return productData;
-}
-
-async function getProductDiscussions() {
-    const slug = path[1];
-    return await queryProductDiscussions(slug);
-}
-
-async function getProductReviews() {
-    const slug = path[1];
-    return await queryReviews(slug, 25, 0, true);
 }
