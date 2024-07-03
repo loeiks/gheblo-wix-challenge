@@ -2,6 +2,7 @@
 import { path, query } from 'wix-location-frontend';
 import { prefetchPageResources } from 'wix-site-frontend';
 import { authentication } from 'wix-members-frontend';
+import { formFactor } from 'wix-window-frontend';
 // Import NPM Packages
 import { createStoreon } from 'storeon-velo';
 // Import Backend Functions
@@ -10,11 +11,13 @@ import { getGenAIResponse } from 'backend/AI/ai_chat.web';
 import { checkIsInFavs } from 'backend/Products/favs.web';
 import { getSuggestedPrompts } from 'backend/AI/ai_chat.web';
 import { queryProductDiscussions } from 'backend/Discussions/discussions.web';
+import { queryReviews } from 'backend/Reviews/reviews.web';
 // Import View Renderers
 import { renderDesktopView, setupDesktopStateEvents } from 'public/ProductPage/desktop.js';
 import { renderMobileView, setupMobileStateEvents } from 'public/ProductPage/mobile.js';
 import { renderAiChat, setupAIStateEvents } from 'public/ProductPage/aiChat.js';
 import { renderDiscussions, setupDiscussionsStateEvents } from 'public/ProductPage/discussions';
+import { renderReviews, setupReviewsStateEvents } from 'public/ProductPage/reviews';
 // Import Helpers
 import { showNotifier } from 'public/notifier';
 import { ssRedering } from 'public/Helpers/ssr';
@@ -38,11 +41,14 @@ const productDataStore = (store) => {
         }
     });
 
-    store.on("setupDesktopStateEvents", setupDesktopStateEvents);
-    store.on("setupMobileStateEvents", setupMobileStateEvents);
-
-    store.on("renderDesktopView", renderDesktopView);
-    store.on("renderMobileView", renderMobileView);
+    // Save state change event listeners based on formFactor to save memory and prevent useless updates and conflicts
+    if (formFactor === ("Desktop" || "Tablet")) {
+        store.on("setupDesktopStateEvents", setupDesktopStateEvents);
+        store.on("renderDesktopView", renderDesktopView);
+    } else {
+        store.on("setupMobileStateEvents", setupMobileStateEvents);
+        store.on("renderMobileView", renderMobileView);
+    }
 
     // Notifier function in state manager
     store.on("notify", (state, notifierData) => {
@@ -57,6 +63,10 @@ const productDataStore = (store) => {
     store.on("renderDiscussions", renderDiscussions);
     store.on("setupDiscussionsStateEvents", setupDiscussionsStateEvents);
 
+    // Renders reviews section/s
+    store.on("renderReviews", renderReviews);
+    store.on("setupReviewsStateEvents", setupReviewsStateEvents);
+
     store.on("getPromptResponse", async ({ _aiProductData }, prompt) => {
         // Disable chat input and wait for new response (input enabled on connect)
         $w('#aiPromptInput').disable();
@@ -66,7 +76,7 @@ const productDataStore = (store) => {
 
     store.on("showLoginScreen", () => {
         authentication.promptLogin({ modal: true, mode: "login" });
-    })
+    });
 };
 
 // Create State
@@ -74,52 +84,79 @@ const appState = createStoreon([productDataStore]);
 const { getState, setState, dispatch, connect, readyStore } = appState;
 
 $w.onReady(async function () {
-    prefetchPageResources({ lightboxes: ["ProductImagePreview", "MobileColorSelection"] });
-
     // Load required data with SSR
-    const [productData, favStatus, suggestedPrompts, productDiscussions] = await Promise.all([
+    const [
+        productData,
+        favStatus,
+        suggestedPrompts,
+        productDiscussions,
+        productReviews
+    ] = await Promise.all([
         ssRedering("productData", getProductDataBySlug),
         ssRedering("favStatus", checkProductFavStatus),
         ssRedering("suggestedPrompts", getSuggestedPrompts),
-        ssRedering("productDiscussions", getProductDiscussions)
+        ssRedering("productDiscussions", getProductDiscussions),
+        ssRedering("productReviews", getProductReviews)
     ]);
 
     initPage({
         productData,
         favStatus,
         suggestedPrompts,
-        productDiscussions
+        productDiscussions,
+        productReviews
     });
+
+    // Load lightboxes when page loads
+    prefetchPageResources({ lightboxes: ["ProductImagePreview", "MobileColorSelection", "ReviewsPhotosExplore"] });
     return readyStore();
 });
 
-async function initPage({ productData, favStatus, suggestedPrompts, productDiscussions }) {
+async function initPage({ productData, favStatus, suggestedPrompts, productDiscussions, productReviews }) {
+    // Reset all repeaters data to empty array to avoid conflicts etc.
+    $w('Repeater').data = [];
     $w('#aiHelperBox').delete();
 
     // Setup State Events (these events needs to run first because they should react to changes to the state)
     setupStateEvents();
 
+    // Save data to states and fire connection state event updates via storeon
     setState({ ...productData, _aiProductData: productData });
     setState({ _isProductInFavs: favStatus });
-    setState({ _aiSuggestedPrompts: suggestedPrompts });
+    setState({ _productReviews: productReviews.items });
+    setState({ _productRatings: productReviews.ratings });
     setState({ _productDiscussions: productDiscussions });
+    setState({ _aiSuggestedPrompts: suggestedPrompts });
 
-    // Render Both Views
-    dispatch("renderDesktopView", appState);
-    dispatch("renderMobileView", appState);
+    // Render Views based on device
+    if (formFactor === ("Desktop" || "Tablet")) {
+        dispatch("renderDesktopView", appState);
+    } else {
+        dispatch("renderMobileView", appState);
+    }
 
-    // Render AI Chat
-    dispatch("renderAiChat", appState);
+    // Render reviews
+    dispatch("renderReviews", appState);
 
     // Render Discussions
     dispatch("renderDiscussions", appState);
+
+    // Render AI Chat
+    dispatch("renderAiChat", appState);
 }
 
 function setupStateEvents() {
-    dispatch("setupDesktopStateEvents", appState);
-    dispatch("setupMobileStateEvents", appState);
+    // Fire state event listeners (connections to storeon) based on formFactor (device type)
+    if (formFactor === ("Desktop" || "Tablet")) {
+        dispatch("setupDesktopStateEvents", appState);
+    } else {
+        dispatch("setupMobileStateEvents", appState);
+    }
+
+    // These are same for all devices
     dispatch("setupAIStateEvents", appState);
     dispatch("setupDiscussionsStateEvents", appState);
+    dispatch("setupReviewsStateEvents", appState);
 }
 
 // HELPER FUNCTIONS
@@ -143,4 +180,9 @@ async function getProductDataBySlug() {
 async function getProductDiscussions() {
     const slug = path[1];
     return await queryProductDiscussions(slug);
+}
+
+async function getProductReviews() {
+    const slug = path[1];
+    return await queryReviews(slug, 25, 0, true);
 }
