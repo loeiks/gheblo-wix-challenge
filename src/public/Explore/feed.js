@@ -5,6 +5,9 @@ import { formFactor, openModal, getBoundingRect } from 'wix-window-frontend';
 import _ from 'lodash';
 import { cart, product } from "wix-stores-frontend";
 import { addProductToFavs, removeProductFromFavs } from 'backend/Products/favs.web';
+import { saveStats } from 'backend/Explore/video_stats.web';
+import { queryVideos } from "backend/Explore/query_videos.web.js";
+import { local } from "wix-storage-frontend";
 
 /**
  * @param {{[key: string]: any}} state 
@@ -41,6 +44,7 @@ export function setupFeedStateEvents(state, store) {
         if (feedVideos) {
             $w('#exploreFeed').data = [];
             $w('#exploreFeed').data = feedVideos;
+            setState({ _loadOn: feedVideos.length - 5 });
         }
     });
 
@@ -50,6 +54,44 @@ export function setupFeedStateEvents(state, store) {
                 message: "Product Modals may load slow, you can also click images to view them in new tab",
                 type: "warning"
             });
+        }
+    });
+
+    connect("_currentVideoData", async ({ _currentVideoData, _currentVideoPlayer, _loggedIn, _previousVideoData, _previousVideoPlayer }) => {
+        if (_currentVideoData && _currentVideoPlayer && _previousVideoData && _previousVideoPlayer && _loggedIn === true) {
+            const { _id } = _previousVideoData;
+
+            try {
+                // Update total watch time
+                await saveStats(_id, { watchTime: _previousVideoPlayer.currentTime });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        if (_currentVideoData && _currentVideoPlayer) {
+            setState({ _previousVideoData: _currentVideoData });
+            setState({ _previousVideoPlayer: _currentVideoPlayer });
+        }
+    });
+
+    connect("_currentVideoIndex", ({ _currentVideoIndex, _loadOn }) => {
+        if (_currentVideoIndex) {
+
+            // If we are at the end of the feed, load more
+            if (_currentVideoIndex >= _loadOn) {
+                // Wait some for mistakes
+                setTimeout(async () => {
+                    const { _currentVideoIndex } = getState();
+
+                    // If we are in the same state load more
+                    if (_currentVideoIndex >= _loadOn) {
+                        const { items } = await queryVideos(15);
+                        $w('#exploreFeed').data = [...$w('#exploreFeed').data, ...items];
+                        setState({ _loadOn: $w('#exploreFeed').data.length - 5 });
+                    }
+                }, 3000);
+            }
         }
     });
 }
@@ -137,9 +179,11 @@ function setEventListeners(state, store) {
         if ($item('#videoPlayer').isMuted) {
             $item('#videoPlayer').unmute();
             $item('#volumeToogle').icon = state.icons._unmutedIcon;
+            local.setItem('isPlayerMuted', 0);
         } else {
             $item('#videoPlayer').mute();
             $item('#volumeToogle').icon = state.icons._mutedIcon;
+            local.setItem('isPlayerMuted', 1);
         }
     });
 
@@ -180,11 +224,21 @@ function setEventListeners(state, store) {
 
     // Play video on viewport change
     $w('#contentContainer').onViewportEnter((event) => {
-        const { $item } = useScope(event);
+        const { $item, index, itemData } = useScope(event);
 
-        if (!$item('#videoPlayer').isPlaying) {
-            $item('#videoPlayer').togglePlay();
+        if (parseFloat(local.getItem("isPlayerMuted")) === 1) {
+            $item('#volumeToogle').icon = state.icons._mutedIcon;
+            $item('#videoPlayer').mute();
+            $item('#videoPlayer').play();
+            $item('#videoPlayer').play();
+        } else {
+            $item('#volumeToogle').icon = state.icons._unmutedIcon;
+            $item('#videoPlayer').unmute();
+            $item('#videoPlayer').play();
+            $item('#videoPlayer').play();
         }
+
+        setState({ _currentVideoData: itemData, _currentVideoIndex: index, _currentVideoPlayer: $item('#videoPlayer') });
     });
 
     $w('#contentContainer').onViewportLeave((event) => {
@@ -250,7 +304,17 @@ function setEventListeners(state, store) {
 
             $item('#selectionTagsStack').expand();
         } else {
-            // No option required only quantity which is 1 by default
+            try {
+                cart.addProducts([{
+                    productId: productData._id,
+                    quantity: 1,
+                }]).then(() => {
+                    dispatch("notify", { message: `${productData.name} added to cart!`, type: "success" });
+                });
+            } catch (err) {
+                console.error(err);
+                dispatch("notify", { message: `${productData.name} couldn't added to cart!`, type: "error" });
+            }
         }
     });
 

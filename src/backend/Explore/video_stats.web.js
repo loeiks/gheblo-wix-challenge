@@ -1,15 +1,23 @@
 import { Permissions, webMethod } from 'wix-web-module';
 import { currentUser } from 'wix-users-backend';
-import weivData from '@exweiv/weiv-data';
+import weivData, { convertId } from '@exweiv/weiv-data';
 
-export const updateStats = webMethod(Permissions.Anyone, async (videoId, stats) => {
+export const saveStats = webMethod(Permissions.SiteMember, async (videoId, stats) => {
     try {
         const memberId = currentUser.id;
+        const convertedVideoId = convertId(videoId);
 
-        const { items } = await weivData.query("Gheblo/ShortVideos").eq("videoId", videoId).eq("memberId", memberId).find({ omitTotalCount: false, suppressAuth: true });
-        const statsData = items[0];
+        const memberStats = await (await weivData.native("Gheblo/ShortVideoStats", true)).findOne({ videoId: convertedVideoId, memberId });
 
-        return await weivData.update("Gheblo/ShortVideos", { ...statsData, ...stats }, { suppressAuth: true });
+        if (memberStats) {
+            if (stats.watchTime > memberStats.watchTime || 0) {
+                await (await weivData.native("Gheblo/ShortVideoStats", true)).updateOne({ videoId: convertedVideoId, memberId }, { $set: stats }, { upsert: true });
+            }
+        } else {
+            await (await weivData.native("Gheblo/ShortVideoStats", true)).updateOne({ videoId: convertedVideoId, memberId }, { $set: stats }, { upsert: true });
+        }
+
+        return true;
     } catch (err) {
         console.error(err);
     }

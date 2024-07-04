@@ -7,39 +7,39 @@ export const queryVideos = webMethod(Permissions.Anyone, async (skipCount, notIn
         if (currentUser.loggedIn) {
             const memberId = currentUser.id;
 
-            // const statsFilter = weivData.query("Gheblo/ShortVideoStats").eq("memberId", memberId)
-            // if (notIncludedVideoId) {
-            //     statsFilter.ne("videoId", notIncludedVideoId)
-            // }
+            const statsFilter = weivData.query("Gheblo/ShortVideoStats").eq("memberId", memberId)
+            if (notIncludedVideoId) {
+                statsFilter.ne("videoId", notIncludedVideoId)
+            }
 
-            // let memberVideoStats = await weivData.query("Gheblo/ShortVideoStats")
-            //     .and(statsFilter)
-            //     .find({ suppressAuth: true, suppressHooks: true });
+            let memberVideoStats = await weivData.query("Gheblo/ShortVideoStats")
+                .and(statsFilter)
+                .find({ suppressAuth: true, suppressHooks: true });
 
-            // let watchedVideoIds = [];
-            // if (memberVideoStats.items.length > 0) {
-            //     watchedVideoIds = memberVideoStats.items.map((stats) => {
-            //         return stats.videoId;
-            //     });
-            // }
+            let watchedVideoIds = [];
+            if (memberVideoStats.items.length > 0) {
+                watchedVideoIds = memberVideoStats.items.map((stats) => {
+                    return stats.videoId;
+                });
+            }
 
             const aggregationPipeline = weivData.aggregate("Gheblo/ShortVideos").descending("_createdDate");
 
-            // if (watchedVideoIds.length > 0) {
-            //     aggregationPipeline.stage(
-            //         {
-            //             $addFields: {
-            //                 isInArray: { $in: ["$_id", watchedVideoIds] }
-            //             }
-            //         },
-            //         {
-            //             $sort: { isInArray: 1 }
-            //         },
-            //         {
-            //             $project: { isInArray: 0 }
-            //         }
-            //     )
-            // }
+            if (watchedVideoIds.length > 0) {
+                aggregationPipeline.stage(
+                    {
+                        $addFields: {
+                            isInArray: { $in: ["$_id", watchedVideoIds] }
+                        }
+                    },
+                    {
+                        $sort: { isInArray: 1 }
+                    },
+                    {
+                        $project: { isInArray: 0 }
+                    }
+                )
+            }
 
             const aggregateResult = await aggregationPipeline.skip(skipCount || 0)
                 .limit(15)
@@ -86,27 +86,7 @@ export const queryVideos = webMethod(Permissions.Anyone, async (skipCount, notIn
                             ],
                             as: "memberVideoStats"
                         }
-                    },
-                    // {
-                    //     $lookup: {
-                    //         from: "ProductFavs",
-                    //         let: {
-                    //             memberId: "$_currentMemberId",
-                    //         },
-                    //         pipeline: [
-                    //             {
-                    //                 $match: {
-                    //                     $expr: {
-                    //                         $eq: ["$_owner", "$$memberId"]
-                    //                     }
-                    //                 }
-                    //             }
-                    //         ],
-                    //         localField: "productIds",
-                    //         foreignField: "productId",
-                    //         as: "productFavs"
-                    //     }
-                    // }
+                    }
                 )
                 .run({ suppressAuth: true });
 
