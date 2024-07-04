@@ -1,7 +1,7 @@
 import { likeVideo, removeLike } from "backend/Explore/video_actions.web.js";
 import { useScope } from "repeater-scope";
 import { authentication } from "wix-members-frontend";
-import { formFactor, openModal, getBoundingRect } from 'wix-window-frontend';
+import { formFactor, openModal, getBoundingRect, copyToClipboard } from 'wix-window-frontend';
 import _ from 'lodash';
 import { cart, product } from "wix-stores-frontend";
 import { addProductToFavs, removeProductFromFavs } from 'backend/Products/favs.web';
@@ -128,13 +128,19 @@ function setEventListeners(state, store) {
         const productsUIData = setProductsInRepeater({ $item, itemData }, store);
         for (const { productBox, productBoxPosition, uiElements, productsBox } of productsUIData) {
             const productData = itemData.products[productBoxPosition - 1].entity;
-            const { pname, pphoto, pprice, pfavbutton } = uiElements;
+            const { pname, pphoto, pprice, pfavbutton, patcbutton } = uiElements;
 
             pname.text = productData.name;
             pprice.text = productData.formattedDiscountedPrice;
             pphoto.src = productData.mainMedia;
             pphoto.link = `https://gheblo.com${productData.productPageUrl}`;
             pphoto.target = "_blank";
+
+            if (!_.isEmpty(productData.productOptions)) {
+                patcbutton.label = "Select Options";
+            } else {
+                patcbutton.label = "Add to Cart";
+            }
 
             if (!getState()._loggedIn) {
                 pfavbutton.collapse();
@@ -433,8 +439,19 @@ function setEventListeners(state, store) {
         $item(`#${event.target.id}`).value = [latestSelectedOption];
     });
 
-    $w('#goToCheckout').onClick((event) => {
+    $w('#goToCheckout').onClick(() => {
         dispatch("navigateToCheckout");
+    });
+
+    $w('#shareVideoURL').onClick((event) => {
+        const { itemData } = useScope(event);
+        copyToClipboard(`https://www.gheblo.com/explore/${itemData._id}`);
+        dispatch("notify", { message: "Video URL Copied to Clipboard!", type: "success" });
+    });
+
+    $w('#videoToggleHitBox').onClick((event) => {
+        const { $item } = useScope(event);
+        $item('#videoPlayer').togglePlay();
     });
 }
 
@@ -462,7 +479,31 @@ function calculatePercentageViewed(duration, currentTime) {
 async function handleVideoLikeAction(event, store) {
     const { dispatch } = store;
     const { itemData, $item, index } = useScope(event);
-    if (!itemData.memberVideoStats) return null;
+
+    if (!itemData.memberVideoStats) {
+        try {
+            $item('#likeButton').customClassList.add('video-liked');
+            // Add Like
+            const response = await likeVideo(itemData._id);
+            if (!response) {
+                $item('#likeButton').customClassList.remove('video-liked');
+                dispatch('notify', {
+                    message: "Unable to like the video!",
+                    type: "error"
+                });
+            } else {
+                updateVideoData(index, { memberVideoStats: [response], likes: itemData.likes + 1 });
+                $item('#likeCount').text = `${itemData.likes + 1}`;
+            }
+        } catch (err) {
+            dispatch('notify', {
+                message: "Unknown error occurred!",
+                type: "error"
+            });
+        }
+
+        return null;
+    };
 
     try {
         if (itemData.memberVideoStats.length > 0) {

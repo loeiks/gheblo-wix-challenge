@@ -105,6 +105,18 @@ th {
     border-radius: 6px;
 }
 
+.explore-feed-video video::-webkit-media-controls {
+    display: none !important;
+}
+
+.explore-feed-video video::-moz-media-controls {
+    display: none !important;
+}
+
+.explore-feed-video video::media-controls {
+    display: none !important;
+}
+
 .content-container-collapsed {
     width: 56.25vh;
 }

@@ -125,22 +125,65 @@ export const queryVideos = webMethod(Permissions.Anyone, async (skipCount, notIn
 
 export const getVideo = webMethod(Permissions.Anyone, async (videoId) => {
     try {
-        const randomVideos = await weivData.query("Gheblo/ShortVideos")
-            .eq("_id", convertId(videoId))
-            .include({
-                collectionName: "WixStoresProducts",
-                fieldName: "productIds",
-                as: "products",
-                foreignField: "entity._id"
-            }, {
-                collectionName: "WixMembersProfileData",
-                fieldName: "_owner",
-                as: "memberProfileData",
-                foreignField: "entity._id"
-            })
-            .find({ suppressAuth: true, suppressHooks: true });
+        const memberId = currentUser.loggedIn ? currentUser.id : null;
+        const videosAggregation = weivData.aggregate("Gheblo/ShortVideos")
+            .filter(weivData.filter().eq("_id", convertId(videoId)))
+            .stage(
+                {
+                    $lookup: {
+                        from: "WixStoresProducts",
+                        localField: "productIds",
+                        foreignField: "entity._id",
+                        as: "products"
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "WixMembersProfileData",
+                        localField: "_owner",
+                        foreignField: "entity._id",
+                        as: "memberProfileData"
+                    }
+                },
+            )
 
-        return randomVideos.items[0];
+
+        if (currentUser.loggedIn) {
+            videosAggregation.stage(
+                {
+                    $addFields: {
+                        _currentMemberId: memberId
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "ShortVideoStats",
+                        let: {
+                            memberId: "$_currentMemberId",
+                            videoId: "$_id"
+                        },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [
+                                            { $eq: ["$memberId", "$$memberId"] },
+                                            { $eq: ["$videoId", "$$videoId"] }
+                                        ]
+                                    }
+                                }
+                            }
+                        ],
+                        as: "memberVideoStats"
+                    }
+                }
+            )
+            const videos = await videosAggregation.run({ suppressAuth: true });
+            return videos.items[0];
+        } else {
+            const videos = await videosAggregation.run({ suppressAuth: true });
+            return videos.items[0];
+        }
     } catch (err) {
         throw new Error(`Error when getting explore video by id, ${err}`);
     }
