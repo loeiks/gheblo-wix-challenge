@@ -23,12 +23,13 @@ import { ssRedering } from 'public/Helpers/ssr';
 const expandedIcon = "https://static.wixstatic.com/media/510eca_3eea9158450d428aaa75dc0bda96705a~mv2.png";
 const collapsedIcon = "https://static.wixstatic.com/media/510eca_f91276b978324371ae93076204f63e7d~mv2.png";
 const inFavsIcon = "https://static.wixstatic.com/shapes/510eca_533c8b3ec0e14523b415e74e8fa63768.svg";
+const favsIcon = "https://static.wixstatic.com/shapes/510eca_d7acda89cc2a49f99ac3269f3b77fa14.svg";
 
 // Define Product Store
 const productDataStore = (store) => {
     store.on('@init', () => ({
         _currentChoices: {},
-        _pageIcons: { collapsedIcon, expandedIcon, inFavsIcon },
+        _pageIcons: { collapsedIcon, expandedIcon, inFavsIcon, favsIcon },
         _aiChatHistory: []
     }));
 

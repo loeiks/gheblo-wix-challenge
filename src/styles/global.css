@@ -32,6 +32,7 @@ th {
 .rotated-element {
     animation: rotateAnimation 1s ease-in-out forwards;
 }
+
 /* Product Page Info Section Styling End */
 
 /* Product Page Styling Start */
@@ -48,7 +49,7 @@ th {
 }
 
 .in-favs {
-    background-color: #006a63;
+    background-color: #bf0033;
 }
 
 .in-favs span {
@@ -58,6 +59,7 @@ th {
 .in-favs svg {
     fill: white;
 }
+
 /* Product Page Styling End */
 
 /* Notifier Styles Start */
@@ -80,6 +82,7 @@ th {
 .notifier-warning {
     background-color: #7c5800;
 }
+
 /* Notifier Styles End */
 
 /* AI Agent Styling Start */
@@ -94,4 +97,26 @@ th {
 .ai-message-box {
     width: auto !important;
 }
+
 /* AI Agent Styling End */
+
+/* Explore Videos Styling Start */
+.explore-feed-video>div>div {
+    border-radius: 6px;
+}
+
+.content-container-collapsed {
+    width: 56.25vh;
+}
+
+.video-liked {
+    background-color: white;
+}
+
+.video-liked:hover {
+    background-color: rgb(255, 255, 255, 0.8);
+}
+
+.video-liked svg path {
+    fill: black !important;
+}

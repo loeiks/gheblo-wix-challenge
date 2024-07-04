@@ -3,7 +3,7 @@ import { calculateDiscountPercentage } from './helpers';
 import { v4 as uuidv4 } from 'uuid';
 import { isEqual, keys, isEmpty } from 'lodash';
 import { cart } from 'wix-stores-frontend';
-import { addProductToFavs } from 'backend/Products/favs';
+import { addProductToFavs, removeProductFromFavs } from 'backend/Products/favs.web';
 
 /**
  * @function
@@ -150,6 +150,9 @@ export function setupDesktopStateEvents(state, { dispatch, setState, getState, c
         if (_isProductInFavs) {
             $w('#atfButton').customClassList.add("in-favs");
             $w('#atfButton').icon = getState()._pageIcons.inFavsIcon;
+        } else {
+            $w('#atfButton').customClassList.remove("in-favs");
+            $w('#atfButton').icon = getState()._pageIcons.favsIcon;
         }
     });
 }
@@ -278,10 +281,39 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
 
     // Add to wishlist/favs button
     $w('#atfButton').onClick(async () => {
-        const { _id } = getState();
-        addProductToFavs(_id);
-        $w('#atfButton').customClassList.add("in-favs");
-        $w('#atfButton').icon = getState()._pageIcons.inFavsIcon;
+        const { _isProductInFavs, _id } = getState();
+
+        try {
+            if (!_isProductInFavs) {
+                setState({ _isProductInFavs: true });
+                
+                $w('#atfButton').disable();
+                const response = await addProductToFavs(_id);
+
+                if (!response) {
+                    setState({ _isProductInFavs: false });
+                    dispatch("notify", { message: "You couldn't add product to your wishlist!", type: "error" });
+                } else {
+                    dispatch("notify", { message: "You have added product to your wishlist!", type: "success" });
+                }
+            } else {
+                $w('#atfButton').disable();
+                const response = await removeProductFromFavs(_id);
+
+                if (!response) {
+                    setState({ _isProductInFavs: true });
+                    dispatch("notify", { message: "You couldn't remove product from your wishlist!", type: "error" });
+                } else {
+                    setState({ _isProductInFavs: false });
+                    dispatch("notify", { message: "You have removed product from your wishlist!", type: "success" });
+                }
+            }
+
+            $w('#atfButton').enable();
+        } catch (err) {
+            setState({ _isProductInFavs: !_isProductInFavs });
+            dispatch("notify", { message: "Unknown error occurred!", type: "error" });
+        }
     })
 }
 

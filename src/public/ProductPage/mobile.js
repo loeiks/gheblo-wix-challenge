@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { isEmpty, isEqual, keys } from 'lodash';
 import { cart } from 'wix-stores-frontend';
 import { openLightbox } from 'wix-window-frontend';
-import { addProductToFavs } from 'backend/Products/favs';
+import { addProductToFavs, removeProductFromFavs } from 'backend/Products/favs.web';
 
 /**
  * @function
@@ -151,6 +151,9 @@ export function setupMobileStateEvents(state, { dispatch, setState, getState, co
         if (_isProductInFavs) {
             $w('#mobileAtfButton').customClassList.add("in-favs");
             $w('#mobileAtfButton').icon = getState()._pageIcons.inFavsIcon;
+        } else {
+            $w('#mobileAtfButton').customClassList.remove("in-favs");
+            $w('#mobileAtfButton').icon = getState()._pageIcons.favsIcon;
         }
     });
 }
@@ -256,7 +259,7 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
     // Add to cart button
     $w('#mobileAtcButton').onClick(() => {
         $w('#mobileAtcButton').disable();
-        
+
         const { _currentVariant, _id, _currentChoices } = getState();
 
         if (_currentVariant) {
@@ -285,10 +288,39 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
 
     // Add to wishlist/favs button
     $w('#mobileAtfButton').onClick(async () => {
-        const { _id } = getState();
-        addProductToFavs(_id);
-        $w('#mobileAtfButton').customClassList.add("in-favs");
-        $w('#mobileAtfButton').icon = getState()._pageIcons.inFavsIcon;
+        const { _isProductInFavs, _id } = getState();
+
+        try {
+            if (!_isProductInFavs) {
+                setState({ _isProductInFavs: true });
+
+                $w('#mobileAtfButton').disable();
+                const response = await addProductToFavs(_id);
+
+                if (!response) {
+                    setState({ _isProductInFavs: false });
+                    dispatch("notify", { message: "You couldn't add product to your wishlist!", type: "error" });
+                } else {
+                    dispatch("notify", { message: "You have added product to your wishlist!", type: "success" });
+                }
+            } else {
+                $w('#mobileAtfButton').disable();
+                const response = await removeProductFromFavs(_id);
+
+                if (!response) {
+                    setState({ _isProductInFavs: true });
+                    dispatch("notify", { message: "You couldn't remove product from your wishlist!", type: "error" });
+                } else {
+                    setState({ _isProductInFavs: false });
+                    dispatch("notify", { message: "You have removed product from your wishlist!", type: "success" });
+                }
+            }
+
+            $w('#mobileAtfButton').enable();
+        } catch (err) {
+            setState({ _isProductInFavs: !_isProductInFavs });
+            dispatch("notify", { message: "Unknown error occurred!", type: "error" });
+        }
     })
 }
 

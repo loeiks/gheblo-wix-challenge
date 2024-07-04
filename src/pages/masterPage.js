@@ -1,10 +1,17 @@
 import { cart } from "wix-stores-frontend";
 import { authentication } from "wix-members-frontend";
 import { formFactor, openLightbox } from "wix-window-frontend";
-import { to } from "wix-location-frontend";
+import { to, prefix } from "wix-location-frontend";
 
 $w.onReady(function () {
-    initClusters();
+    const unTouchPages = [
+        "explore",
+        "checkout"
+    ];
+
+    if (unTouchPages.includes(prefix) !== true) {
+        initClusters();
+    }
 });
 
 // Global functions are always called as Clusters to be notified in Clusters IST 1-2
