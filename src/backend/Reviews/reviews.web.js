@@ -3,48 +3,117 @@ import { getMemberProfileData } from "backend/Members/member_data.web.js";
 import weivData, { convertId } from '@exweiv/weiv-data';
 import { getProductIdBySlug } from "backend/Helpers/product_helpers.web.js";
 
-/**
- * @typedef {string} MediaItem
- */
-
-export const createReview = webMethod(Permissions.SiteMember, async (reviewData) => {
-    try {
-        const defaultContent = {
-            body: "",
-            media: [],
-            rating: 5
-        }
-
-        const reviewObj = {
-            ...reviewData,
-            content: {
-                ...defaultContent,
-                ...reviewData.content
+export const createReview = webMethod(Permissions.SiteMember,
+    /**
+     * @param {{
+     * content: {
+     * body: string,
+     * media: string[],
+     * rating: number
+     * },
+     * productId: string
+     * }} reviewData 
+     */
+    async (reviewData) => {
+        try {
+            if (!reviewData) {
+                throw new Error(`Review data is not valid`);
+            } else {
+                if (!reviewData.content || !reviewData.productId) {
+                    throw new Error(`Review data is not valid, no content or productId`);
+                } else {
+                    if (!reviewData.content.body || !reviewData.content.rating) {
+                        throw new Error(`Review data is not valid, no content body or rating`);
+                    }
+                }
             }
+
+            if (!reviewData.content.media) {
+                reviewData.content.media = [];
+            }
+
+            const productData = await (await weivData.native("Gheblo/WixStoresProducts", true)).findOne({ "entity._id": reviewData.productId });
+            if (!productData) {
+                throw new Error(`Product data is not valid`);
+            }
+
+            const createdReview = await weivData.insert("Gheblo/ProductReviews", reviewData, { suppressAuth: true, suppressHooks: true });
+
+            return {
+                ...createdReview,
+                product: [productData]
+            }
+        } catch (err) {
+            throw new Error(`Error while creating review, ${err}`);
         }
+    });
 
-        return await weivData.insert("Gheblo/ProductReviews", reviewObj, { suppressAuth: true, suppressHooks: true });
-    } catch (err) {
-        throw new Error(`Error while creating review, ${err}`);
-    }
-});
+export const updateReview = webMethod(Permissions.SiteMember,
+    /**
+    * @param {string} reviewId 
+    * @param {{
+    * content: {
+    * body: string,
+    * media: string[],
+    * rating: number
+    * },
+    * productId: string
+    * }} reviewData 
+    */
+    async (reviewId, reviewData) => {
+        try {
+            if (!reviewData || !reviewId) {
+                throw new Error(`Review data or review id is not valid`);
+            } else {
+                if (!reviewData.content || !reviewData.productId) {
+                    throw new Error(`Review data is not valid, no content or productId`);
+                } else {
+                    if (!reviewData.content.body || !reviewData.content.rating) {
+                        throw new Error(`Review data is not valid, no content body or rating`);
+                    }
+                }
+            }
 
-export const deleteReview = webMethod(Permissions.SiteMember, async (reviewId) => {
-    try {
-        return await weivData.remove("Gheblo/ProductReviews", reviewId, { suppressAuth: true, suppressHooks: true, onlyOwner: true });
-    } catch (err) {
-        throw new Error(`Error while deleting review, ${err}`);
-    }
-});
+            if (!reviewData.content.media) {
+                reviewData.content.media = [];
+            }
 
-export const updateReview = webMethod(Permissions.SiteMember, async (reviewId, reviewData) => {
-    try {
-        return await weivData.update("Gheblo/ProductReviews", reviewData, { suppressAuth: true, suppressHooks: true, onlyOwner: true });
-    } catch (err) {
-        throw new Error(`Error while updating review, ${err}`);
-    }
-});
+            const productData = await (await weivData.native("Gheblo/WixStoresProducts", true)).findOne({ "entity._id": reviewData.productId });
+            if (!productData) {
+                throw new Error(`Product data is not valid`);
+            }
 
+            const updatedReviewData = await weivData.update("Gheblo/ProductReviews", reviewData, { suppressAuth: true, suppressHooks: true, onlyOwner: true });
+
+            return {
+                ...updatedReviewData,
+                product: [productData]
+            }
+        } catch (err) {
+            throw new Error(`Error while updating review, ${err}`);
+        }
+    });
+
+export const deleteReview = webMethod(Permissions.SiteMember,
+    /**
+     * 
+     * @param {string} reviewId 
+     * @returns 
+     */
+    async (reviewId) => {
+        try {
+            if (!reviewId) {
+                throw new Error(`Review id is not valid`);
+            }
+
+            await weivData.remove("Gheblo/ProductReviews", reviewId, { suppressAuth: true, suppressHooks: true, onlyOwner: true });
+            return true;
+        } catch (err) {
+            throw new Error(`Error while deleting review, ${err}`);
+        }
+    });
+
+// Read Data
 export const queryReviews = webMethod(Permissions.Anyone, async (productSlug, limit = 10, skip = 0, includeRatingDetails) => {
     try {
         const productId = await getProductIdBySlug(productSlug);

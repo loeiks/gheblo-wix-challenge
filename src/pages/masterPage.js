@@ -16,33 +16,41 @@ $w.onReady(function () {
 
 // Global functions are always called as Clusters to be notified in Clusters IST 1-2
 async function initClusters() {
-    if (authentication.loggedIn() === true) {
-        $w("#memberLoginBar").expand();
-        $w("#membersLoginBarMobileMenu").expand();
-    } else {
-        $w("#loginIcon").expand();
-        $w("#loginIcon").onClick(() => {
-            authentication.promptLogin({ mode: "login" });
-        })
-    }
+    if ($w('#Header').rendered) {
+        if (authentication.loggedIn() === true) {
+            $w("#memberLoginBar").expand();
+            $w("#membersLoginBarMobileMenu").expand();
+        } else {
+            $w("#loginIcon").expand();
+            $w("#loginIcon").onClick(() => {
+                authentication.promptLogin({ mode: "login" });
+            })
+        }
 
-    eventListeners();
+        eventListeners();
+    }
 }
 
 function eventListeners() {
-    $w("#shoppingCart").onClick(() => {
-        if (formFactor != "Mobile") {
-            cart.showMiniCart();
-        } else {
-            to("/cart-page");
-        }
-    });
+    if ($w("#shoppingCart").rendered) {
+        $w("#shoppingCart").onClick(() => {
+            if (formFactor != "Mobile") {
+                cart.showMiniCart();
+            } else {
+                to("/cart-page");
+            }
+        });
+    }
 
-    $w("#searchIcon").onClick(() => {
-        openLightbox("Search Box");
-    });
+    if ($w("#searchIcon").rendered) {
+        $w("#searchIcon").onClick(() => {
+            openLightbox("Search Box");
+        });
+    }
 
-    $w('#startChat').onClick(() => {
-        $w('#wixChat').maximize();
-    })
+    if ($w('#startChat').rendered) {
+        $w('#startChat').onClick(() => {
+            $w('#wixChatBox').maximize();
+        });
+    }
 }

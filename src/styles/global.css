@@ -50,6 +50,7 @@ th {
 
 .in-favs {
     background-color: #bf0033;
+    transition: 0.3s ease-in-out;
 }
 
 .in-favs span {
@@ -58,6 +59,11 @@ th {
 
 .in-favs svg {
     fill: white;
+}
+
+.in-favs:hover {
+    background-color: #920025;
+    border: none !important;
 }
 
 /* Product Page Styling End */
@@ -131,4 +137,40 @@ th {
 
 .video-liked svg path {
     fill: black !important;
+}
+
+/* Explore Videos Styling End */
+
+/* Member Pages Styling */
+.status-green {
+    color: #006a63;
+}
+
+.status-warning {
+    color: #7c5800;
+}
+
+.notifier {
+    z-index: 998 !important;
+}
+
+.notifier p {
+    z-index: 999 !important;
+    position: relative !important;
+}
+
+.text-underline {
+    text-decoration: underline;
+}
+
+.header-section {
+    z-index: 997 !important;
+}
+
+.cancelled-order-status-text span {
+    color: #ba1a1a !important;
+}
+
+.cancelled-order-status-text h5 {
+    color: #ba1a1a !important;
 }

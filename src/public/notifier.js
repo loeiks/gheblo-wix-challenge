@@ -35,6 +35,7 @@ export function showNotifier({
     $w('#notifierText').text = message;
     $w('#notifierBackground').customClassList.values().forEach((className) => { $w('#notifierBackground').customClassList.remove(className); });
     $w('#notifierBackground').customClassList.add("notifier-" + type);
+    $w('#notifierBackground').customClassList.add("notifier");
     $w('#notifierBackground').expand();
 
     timeoutId = setTimeout(() => {
