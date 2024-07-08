@@ -1,7 +1,7 @@
 import { webMethod, Permissions } from "wix-web-module";
 import { getMemberProfileData } from "backend/Members/member_data.web.js";
 import weivData, { convertId } from '@exweiv/weiv-data';
-import { getProductIdBySlug } from "backend/Helpers/product_helpers.web.js";
+import { getProductBySlug } from "backend/Helpers/product_helpers.web.js";
 
 export const createReview = webMethod(Permissions.SiteMember,
     /**
@@ -116,19 +116,29 @@ export const deleteReview = webMethod(Permissions.SiteMember,
 // Read Data
 export const queryReviews = webMethod(Permissions.Anyone, async (productSlug, limit = 10, skip = 0, includeRatingDetails) => {
     try {
-        const productId = await getProductIdBySlug(productSlug);
+        const product = await getProductBySlug(productSlug);
         const result = await (await weivData.native("Gheblo/ProductReviews", true)).find({
             "productId": {
-                $eq: productId
+                $eq: product._id
             },
             "content.body": {
                 $exists: true,
                 $ne: null
             },
-
         }, { sort: { "_id": -1 }, limit: limit || 10, skip: skip || 0 }).toArray();
 
-        const items = await result.map(async (item) => {
+        const totalReviews = result.length > 0 ?
+            await (await weivData.native("Gheblo/ProductReviews", true)).countDocuments({
+                "productId": {
+                    $eq: product._id
+                },
+                "content.body": {
+                    $exists: true,
+                    $ne: null
+                }
+            }) : 0;
+
+        const items = result.map(async (item) => {
             const memberData = await getMemberProfileData(item._owner);
             return {
                 ...item,
@@ -140,7 +150,8 @@ export const queryReviews = webMethod(Permissions.Anyone, async (productSlug, li
         if (includeRatingDetails) {
             return {
                 items: await Promise.all(items),
-                ratings: await getProductReviewRatingDetails(productSlug)
+                ratings: await getProductReviewRatingDetails(productSlug),
+                totalReviews
             }
         } else {
             return await Promise.all(items);
@@ -152,10 +163,10 @@ export const queryReviews = webMethod(Permissions.Anyone, async (productSlug, li
 
 export const getProductReviewRatingDetails = webMethod(Permissions.Anyone, async (productSlug) => {
     try {
-        const productId = await getProductIdBySlug(productSlug);
+        const product = await getProductBySlug(productSlug);
         const ratings = await weivData.aggregate("Gheblo/ProductReviews").stage(
             {
-                $match: { productId }
+                $match: { productId: product._id }
             },
             {
                 $group: {

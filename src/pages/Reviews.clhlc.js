@@ -50,7 +50,7 @@ const myAccountStore = (store) => {
 
             const createdReview = await createReview(reviewData);
             if (createdReview) {
-                dispatch("notify", { message: "Nice! Review has been published with others!", type: "success" });
+                dispatch("notify", { message: "Your review has been published with others.", type: "success" });
 
                 if (reviews) {
                     setState({ reviews: [...reviews, createdReview] });
@@ -65,14 +65,14 @@ const myAccountStore = (store) => {
                 setState({ _currentState: "Reviews" });
                 updateMenuStatus("Reviews");
             } else {
-                dispatch("notify", { message: "Noo! Failed to share review!", type: "error" });
+                dispatch("notify", { message: "Failed to share your review!", type: "error" });
             }
 
             $w('#shareReviewButton').enable();
         } catch (err) {
             $w('#shareReviewButton').enable();
             console.error(err);
-            dispatch("notify", { message: "Noo! Failed to share review!", type: "error" });
+            dispatch("notify", { message: "Failed to share your review!", type: "error" });
         }
     });
 
@@ -102,7 +102,7 @@ const myAccountStore = (store) => {
 
             const updatedReview = await updateReview(copyCurrentReview._id, reviewData, reviewData.productId);
             if (updatedReview) {
-                dispatch("notify", { message: "Review has been updated!", type: "success" });
+                dispatch("notify", { message: "Review has been updated.", type: "success" });
 
                 const removedReviews = remove(reviews, review => review._id === _currentReview._id);
                 setState({ reviews: removedReviews });
@@ -127,7 +127,7 @@ const myAccountStore = (store) => {
             const response = await deleteReview(_currentReview._id);
 
             if (response) {
-                dispatch("notify", { message: "Review has been deleted!", type: "success" });
+                dispatch("notify", { message: "Review has been deleted.", type: "success" });
 
                 const updatedReviews = reviews.filter(r => r._id !== _currentReview._id);
                 if (updatedReviews.length > 0) {
@@ -303,6 +303,9 @@ function setEventListeners() {
 
     $w('#reviewsRepeater').onItemReady(($item, itemData, index) => {
         $item('#reviewProductImage').src = itemData.product[0].entity.mainMedia;
+        $item('#reviewProductImage').link = `/product-page/${itemData.product[0].entity.slug}`;
+        $item('#reviewProductImage').target = "_blank";
+        
         $item('#reviewProductName').text = itemData.product[0].entity.name;
         $item('#reviewComment').text = itemData.content.body;
         $item('#rating').rating = itemData.content.rating;
@@ -388,17 +391,11 @@ function validateInputs() {
                     }
 
                     $w('#imageUploadInput').reset();
-                    dispatch("notify", {
-                        message,
-                        type: "error"
-                    });
+                    dispatch("notify", { message, type: "error" });
                 }
             }
         } else {
-            dispatch("notify", {
-                message: "Review details are not valid!",
-                type: "error"
-            });
+            dispatch("notify", { message: "Review details aren't valid!", type: "error" });
         }
 
         return false;

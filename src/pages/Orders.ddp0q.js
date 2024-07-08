@@ -227,11 +227,11 @@ function setEventListeners() {
         const cancelledOrder = await cancelOrder(_currentOrder._id, reason);
 
         if (cancelledOrder) {
-            dispatch("notify", { message: "Order has been cancelled", type: "success" });
+            dispatch("notify", { message: "Order has been cancelled.", type: "success" });
             setState({ _currentOrder: cancelledOrder });
             setState({ _currentState: "order" });
         } else {
-            dispatch("notify", { message: "Failed to cancel order", type: "error" });
+            dispatch("notify", { message: "Failed to cancel order!", type: "error" });
         }
 
         $w('#startCancelOrder').enable();
@@ -308,4 +308,5 @@ function getImageURL(image) {
 
 async function contactSupport() { //@ts-ignore
     $w('#wixChatBox').maximize();
+    $w('#wixChatBox').expand();
 }

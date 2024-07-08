@@ -8,6 +8,7 @@ import { addProductToFavs, removeProductFromFavs } from 'backend/Products/favs.w
 import { saveStats } from 'backend/Explore/video_stats.web';
 import { queryVideos } from "backend/Explore/query_videos.web.js";
 import { local } from "wix-storage-frontend";
+import { _icons_ } from '../icons';
 
 /**
  * @param {{[key: string]: any}} state 
@@ -45,15 +46,6 @@ export function setupFeedStateEvents(state, store) {
             $w('#exploreFeed').data = [];
             $w('#exploreFeed').data = feedVideos;
             setState({ _loadOn: feedVideos.length - 5 });
-        }
-    });
-
-    connect("_warnAboutProductModals", ({ _warnAboutProductModals }) => {
-        if (_warnAboutProductModals === 1) {
-            dispatch("notify", {
-                message: "Product Modals may load slow, you can also click images to view them in new tab",
-                type: "warning"
-            });
         }
     });
 
@@ -112,7 +104,7 @@ function setEventListeners(state, store) {
         $item('#likeCount').text = `${itemData.likes}`;
 
         // Author Details
-        $item('#authorProfilePhoto').src = videoAuthorData.profilePhoto.url;
+        $item('#authorProfilePhoto').src = videoAuthorData.profilePhoto?.url || _icons_.profilePhotoNull;
         $item('#authorName').text = videoAuthorData.nickname;
 
         if (state._loggedIn && itemData.memberVideoStats) {
@@ -257,17 +249,7 @@ function setEventListeners(state, store) {
         const { itemData } = useScope(event);
         const productPosition = extractNumberFromString(event.target.id);
         const productData = itemData.products[productPosition - 1].entity;
-
-        const { _warnAboutProductModals } = getState();
-
-        if (_warnAboutProductModals !== 1) {
-            setState({ _warnAboutProductModals: 1 });
-            setTimeout(() => {
-                openModal(`https://gheblo.com${productData.productPageUrl}/`, getState()._modalSize);
-            }, 3000);
-        } else {
-            openModal(`https://gheblo.com${productData.productPageUrl}/`, getState()._modalSize);
-        }
+        openModal(`https://gheblo.com${productData.productPageUrl}/`, getState()._modalSize);
     });
 
     // Add to cart
@@ -315,11 +297,11 @@ function setEventListeners(state, store) {
                     productId: productData._id,
                     quantity: 1,
                 }]).then(() => {
-                    dispatch("notify", { message: `${productData.name} added to cart!`, type: "success" });
+                    dispatch("notify", { message: `${productData.name} added to your cart.`, type: "success" });
                 });
             } catch (err) {
                 console.error(err);
-                dispatch("notify", { message: `${productData.name} couldn't added to cart!`, type: "error" });
+                dispatch("notify", { message: `${productData.name} couldn't added to your cart!`, type: "error" });
             }
         }
     });
@@ -343,22 +325,22 @@ function setEventListeners(state, store) {
                     const response = await addProductToFavs(productData._id);
 
                     if (!response) {
-                        dispatch("notify", { message: "You couldn't add product to your wishlist!", type: "error" });
+                        dispatch("notify", { message: "You couldn't add product to your favorites!", type: "error" });
                         setState({ _isProductInFavs: false });
                         dispatch("handleFavButtonStatus", { targetButton, productId: productData._id });
                     } else {
-                        dispatch("notify", { message: "You have added product to your wishlist!", type: "success" });
+                        dispatch("notify", { message: "You have added product to your favorites.", type: "success" });
                     }
                 } else {
                     targetButton.disable();
                     const response = await removeProductFromFavs(productData._id);
 
                     if (!response) {
-                        dispatch("notify", { message: "You couldn't remove product from your wishlist!", type: "error" });
+                        dispatch("notify", { message: "You couldn't remove product from your favorites!", type: "error" });
                         setState({ _isProductInFavs: true });
                         dispatch("handleFavButtonStatus", { targetButton, productId: productData._id });
                     } else {
-                        dispatch("notify", { message: "You have removed product from your wishlist!", type: "success" });
+                        dispatch("notify", { message: "You have removed product from your favorites.", type: "success" });
                         setState({ _isProductInFavs: false });
                         dispatch("handleFavButtonStatus", { targetButton, productId: productData._id });
                     }
@@ -390,12 +372,12 @@ function setEventListeners(state, store) {
             // Value validty check
             if (itemData._hasSize && !selectedSize) {
                 event.target.enable();
-                dispatch("notify", { message: `You need to pick a size!`, type: "warning" });
+                dispatch("notify", { message: `You have to pick a size first!`, type: "warning" });
                 return null;
             } else {
                 if (itemData._hasColor && !selectedColor) {
                     event.target.enable();
-                    dispatch("notify", { message: `You need to pick a color!`, type: "warning" });
+                    dispatch("notify", { message: `You have to pick a color first!`, type: "warning" });
                     return null;
                 }
             }
@@ -412,7 +394,7 @@ function setEventListeners(state, store) {
             const inStock = await checkVariantStockStatus(productData._id, choices);
 
             if (!inStock) {
-                dispatch("notify", { message: "Product options are not available (out of stock)", type: "warning" });
+                dispatch("notify", { message: "Product options are not available (out of stock) 😞", type: "warning" });
                 event.target.enable();
                 return null;
             }
@@ -424,11 +406,11 @@ function setEventListeners(state, store) {
                 quantity: 1,
                 options: { choices }
             }]).then(() => {
-                dispatch("notify", { message: `${productData.name} added to cart!`, type: "success" });
+                dispatch("notify", { message: `${productData.name} added to cart.`, type: "success" });
                 event.target.enable();
             });
         } catch (err) {
-            dispatch("notify", { message: "An unknown error occurred", type: "error" });
+            dispatch("notify", { message: "An unknown error occurred!", type: "error" });
             event.target.enable();
         }
     });
@@ -446,7 +428,7 @@ function setEventListeners(state, store) {
     $w('#shareVideoURL').onClick((event) => {
         const { itemData } = useScope(event);
         copyToClipboard(`https://www.gheblo.com/explore/${itemData._id}`);
-        dispatch("notify", { message: "Video URL Copied to Clipboard!", type: "success" });
+        dispatch("notify", { message: "Video URL Copied to Clipboard", type: "success" });
     });
 
     $w('#videoToggleHitBox').onClick((event) => {

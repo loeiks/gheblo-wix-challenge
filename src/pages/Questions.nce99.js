@@ -67,6 +67,10 @@ async function initPage(routerData) {
     } = routerData;
 
     setState({ questions, product, hasNext, uniqueBuyersCount });
+
+    if (query["create"]) {
+        setState({ _currentState: "createQuestion" });
+    }
 }
 
 function setupStateEvents() {
@@ -129,8 +133,12 @@ function setupStateEvents() {
             $w('#stateBox').changeState(_currentState);
 
             if (_currentState === "createQuestion") {
-                $w('#pageTitle').text = "Create Question";
-                $w('#backToQuestions').expand();
+                if (authentication.loggedIn()) {
+                    $w('#pageTitle').text = "Create Question";
+                    $w('#backToQuestions').expand();
+                } else {
+                    authentication.promptLogin({ modal: true, mode: "signup" });
+                }
             } else {
                 $w('#pageTitle').text = "Questions";
                 $w('#backToQuestions').collapse();
@@ -193,10 +201,10 @@ function setEventListeners() {
             const createdQuestion = await createQuestion(text, product._id);
 
             if (createdQuestion) {
-                dispatch("notify", { message: "Your question has been published successfully!", type: "success" });
+                dispatch("notify", { message: "Your question has been published successfully.", type: "success" });
                 to(`https://www.gheblo.com/questions/${product.slug}/${createdQuestion._id}`);
             } else {
-                dispatch("notify", { message: "Failed to publish question. Please try again.", type: "error" });
+                dispatch("notify", { message: "Failed to publish question!", type: "error" });
             }
         }
     });
@@ -218,10 +226,10 @@ function setEventListeners() {
             const isDeleted = await deleteQuestion(itemData._id);
 
             if (isDeleted) {
-                dispatch("notify", { message: "Your question has been deleted successfully!", type: "success" });
+                dispatch("notify", { message: "Your question has been deleted successfully.", type: "success" });
                 refreshQuestions(itemData._id);
             } else {
-                dispatch("notify", { message: "Failed to delete question. Please try again.", type: "error" });
+                dispatch("notify", { message: "Failed to delete question!", type: "error" });
             }
         }
     });

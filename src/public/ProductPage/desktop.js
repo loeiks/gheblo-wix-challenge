@@ -15,7 +15,7 @@ import { addProductToFavs, removeProductFromFavs } from 'backend/Products/favs.w
  * @returns {void} Returns nothing it's just a void 
  */
 export function renderDesktopView(state, store) {
-    $w('#productPageWidgetSection').delete();
+    $w('#productPageWidgetSection, #mobileImagesSection, #mobileInfoSection').delete();
     setupPageView(state, store);
 }
 
@@ -67,7 +67,9 @@ export function setupDesktopStateEvents(state, { dispatch, setState, getState, c
         $w('#productSku').text = `Product SKU: ${sku || variants[0].variant.sku}`;
         $w('#modelInfo').text = description.replace("<p>", "").replace("</p>", "");
 
-        updateGalleryImages(mediaItems);
+        if (mediaItems.length > 0) {
+            updateGalleryImages(mediaItems);
+        }
     });
 
     // When price change we update the pricing details
@@ -87,12 +89,16 @@ export function setupDesktopStateEvents(state, { dispatch, setState, getState, c
 
     // When product images by color change we update the color selection repeater
     connect("productImagesByColor", ({ productImagesByColor }) => {
-        updateColorSelections(productImagesByColor);
+        if (productImagesByColor) {
+            updateColorSelections(productImagesByColor);
+        }
     });
 
     // When product options change we update size selection repeater
     connect("productOptions", ({ productOptions }) => {
-        updateSizeSelections(productOptions);
+        if (productOptions) {
+            updateSizeSelections(productOptions);
+        }
     });
 
     // When current images changes (because of color selection change) we update both size stock data and images in gallery
@@ -122,7 +128,8 @@ export function setupDesktopStateEvents(state, { dispatch, setState, getState, c
     });
 
     // Check and update current variant based on available options
-    connect("_currentChoices", ({ _currentChoices, productVariants, productOptions, productImagesByColor }) => {
+    connect("_currentChoices", ({ _currentChoices, productVariants, productOptions, productImagesByColor, _previous_currentChoices }) => {
+
         const selectionsCount = keys(productOptions);
         const selectedSelectionsCount = keys(_currentChoices);
 
@@ -135,8 +142,15 @@ export function setupDesktopStateEvents(state, { dispatch, setState, getState, c
             setState({ _currentVariant });
         }
 
-        updateSizeSelections(productOptions);
-        updateColorSelections(productImagesByColor);
+        if (!isEqual(_currentChoices?.["Color"], _previous_currentChoices?.["Color"])) {
+            updateColorSelections(productImagesByColor);
+        }
+
+        if (!isEqual(_currentChoices?.["Size"], _previous_currentChoices?.["Size"])) {
+            updateSizeSelections(productOptions);
+        }
+
+        setState({ _previous_currentChoices: _currentChoices });
     });
 
     // Update variant based SKU in case of there is a different SKU for that variant
@@ -147,10 +161,10 @@ export function setupDesktopStateEvents(state, { dispatch, setState, getState, c
     });
 
     connect("_isProductInFavs", ({ _isProductInFavs }) => {
-        if (_isProductInFavs) {
+        if (_isProductInFavs === true) {
             $w('#atfButton').customClassList.add("in-favs");
             $w('#atfButton').icon = getState()._pageIcons.inFavsIcon;
-        } else {
+        } else if (_isProductInFavs === false) {
             $w('#atfButton').customClassList.remove("in-favs");
             $w('#atfButton').icon = getState()._pageIcons.favsIcon;
         }
@@ -160,23 +174,21 @@ export function setupDesktopStateEvents(state, { dispatch, setState, getState, c
 // SETUP EVENT ELEMENT LISTENERS
 function setEventListeners(state, { dispatch, setState, getState, connect }) {
     // Setup preview images
-    $w('#productImagesPreview').onItemReady(($item, itemData, index) => {
-        $item('#productImagePreview').src = itemData.src;
-        if (itemData.alt) {
-            $item('#productImagePreview').alt = itemData.alt;
-        }
-    });
+    // $w('#productImagesPreview').onItemReady(($item, itemData, index) => {
+    //     $item('#productImagePreview').src = itemData.src;
+    //     if (itemData.alt) {
+    //         $item('#productImagePreview').alt = itemData.alt;
+    //     }
+    // });
 
     // Handle on preview image click (open required index item)
-    $w('#productImagePreviewItem').onClick((event) => {
-        const { itemData } = useScope(event);
-        const imageIndex = $w('#productImages').items.findIndex((item) => {
-            return item.src === itemData.src;
-        });
-
-        console.error("Wix's API is broken `navigateToIndex` is doesn't exist in gallery item so it's not working because of this...");
-        $w('#productImages').navigateToIndex(imageIndex);
-    });
+    // $w('#productImagePreviewItem').onClick((event) => {
+    //     const { itemData } = useScope(event);
+    //     const selectedImage = $w('#productImages').items.find(item => item.src === itemData.src);
+    //     const removedArray = $w('#productImages').items.filter(item => item.src !== itemData.src);
+    //     $w('#productImages').items = [selectedImage, ...removedArray];
+    //     $w('#productImages').previous();
+    // });
 
     // Setup color choices (color selection)
     $w('#colorSelectionRepeater').onItemReady(($item, itemData, index) => {
@@ -260,7 +272,7 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
     // Add to cart button
     $w('#atcButton').onClick(() => {
         $w('#atcButton').disable();
-        const { _currentVariant, _id, _currentChoices } = getState();
+        const { _currentVariant, _id, _currentChoices, name } = getState();
 
         if (_currentVariant) {
             cart.addProducts([{
@@ -270,7 +282,7 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
                     choices: _currentChoices
                 }
             }]).then(() => {
-                dispatch("notify", { message: "You have added product to your cart!", type: "success" });
+                dispatch("notify", { message: `${name} added to your cart`, type: "success" });
                 $w('#atcButton').enable();
             });
         } else {
@@ -281,20 +293,20 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
 
     // Add to wishlist/favs button
     $w('#atfButton').onClick(async () => {
-        const { _isProductInFavs, _id } = getState();
+        const { _isProductInFavs, _id, name } = getState();
 
         try {
             if (!_isProductInFavs) {
                 setState({ _isProductInFavs: true });
-                
+
                 $w('#atfButton').disable();
                 const response = await addProductToFavs(_id);
 
                 if (!response) {
                     setState({ _isProductInFavs: false });
-                    dispatch("notify", { message: "You couldn't add product to your wishlist!", type: "error" });
+                    dispatch("notify", { message: `You couldn't add ${name} to your favorites!`, type: "error" });
                 } else {
-                    dispatch("notify", { message: "You have added product to your wishlist!", type: "success" });
+                    dispatch("notify", { message: `You have added ${name} to your favorites.`, type: "success" });
                 }
             } else {
                 $w('#atfButton').disable();
@@ -302,10 +314,10 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
 
                 if (!response) {
                     setState({ _isProductInFavs: true });
-                    dispatch("notify", { message: "You couldn't remove product from your wishlist!", type: "error" });
+                    dispatch("notify", { message: `You couldn't remove ${name} from your favorites!`, type: "error" });
                 } else {
                     setState({ _isProductInFavs: false });
-                    dispatch("notify", { message: "You have removed product from your wishlist!", type: "success" });
+                    dispatch("notify", { message: `You have removed ${name} from your favorites.`, type: "success" });
                 }
             }
 
@@ -314,7 +326,7 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
             setState({ _isProductInFavs: !_isProductInFavs });
             dispatch("notify", { message: "Unknown error occurred!", type: "error" });
         }
-    })
+    });
 }
 
 // HELPER FUNCTIONS
@@ -324,16 +336,16 @@ function updateGalleryImages(imageSet) {
     });
 
     $w('#productImages').items = filteredImageSet;
-    $w('#productImagesPreview').data = filteredImageSet.map((item) => {
-        return {
-            ...item,
-            _id: uuidv4()
-        }
-    });
+    // $w('#productImagesPreview').data = filteredImageSet.map((item) => {
+    //     return {
+    //         ...item,
+    //         _id: uuidv4()
+    //     }
+    // });
 }
 
 function updateSizeSelections(productOptions) {
-    if (productOptions["Size"]) {
+    if (productOptions?.["Size"]) {
         const choices = productOptions["Size"].choices;
         $w('#sizeSelectionRepeater').data = choices.map((choice) => { return { ...choice, _id: uuidv4() } });
         $w('#sizeSelectionRepeater').expand();
@@ -348,7 +360,9 @@ function getVariantDataForSize(size, { getState }) {
 }
 
 function updateColorSelections(productImagesByColor) {
-    $w('#colorSelectionRepeater').data = [];
-    $w('#colorSelectionRepeater').data = productImagesByColor.map((item) => { return { ...item, _id: uuidv4() } });
-    $w('#colorSelectionRepeater').expand();
+    if (productImagesByColor) {
+        $w('#colorSelectionRepeater').data = [];
+        $w('#colorSelectionRepeater').data = productImagesByColor.map((item) => { return { ...item, _id: uuidv4() } });
+        $w('#colorSelectionRepeater').expand();
+    }
 }

@@ -8,12 +8,11 @@ import { createStoreon } from 'storeon-velo';
 // Import Backend Functions
 import { getGenAIResponse } from 'backend/AI/ai_chat.web';
 import { getProductPageData } from 'backend/Pages/productPage.web';
-import { checkIsInFavs } from 'backend/Products/favs.web';
 // Import View Renderers
 import { renderDesktopView, setupDesktopStateEvents } from 'public/ProductPage/desktop.js';
 import { renderMobileView, setupMobileStateEvents } from 'public/ProductPage/mobile.js';
 import { renderAiChat, setupAIStateEvents } from 'public/ProductPage/aiChat.js';
-import { renderDiscussions, setupDiscussionsStateEvents } from 'public/ProductPage/discussions';
+import { renderQuestions, setupQuestionsStateEvents } from 'public/ProductPage/questions';
 import { renderReviews, setupReviewsStateEvents } from 'public/ProductPage/reviews';
 // Import Helpers
 import { showNotifier } from 'public/notifier';
@@ -57,9 +56,9 @@ const productDataStore = (store) => {
     store.on("setupAIStateEvents", setupAIStateEvents);
     store.on("renderAiChat", renderAiChat);
 
-    // Renders discussions section
-    store.on("renderDiscussions", renderDiscussions);
-    store.on("setupDiscussionsStateEvents", setupDiscussionsStateEvents);
+    // Renders questions section
+    store.on("renderQuestions", renderQuestions);
+    store.on("setupQuestionsStateEvents", setupQuestionsStateEvents);
 
     // Renders reviews section/s
     store.on("renderReviews", renderReviews);
@@ -86,17 +85,19 @@ $w.onReady(async function () {
     const {
         productData,
         suggestedPrompts,
-        productDiscussions,
-        productReviews
+        productQuestions,
+        productReviews,
+        isInFavorite,
+        uniqueBuyersCount
     } = await ssRedering("productPageData", getProductPageDetails);
-    const favStatus = await ssRedering("favStatus", checkProductFavStatus);
 
     initPage({
         productData,
-        favStatus,
+        isInFavorite,
         suggestedPrompts,
-        productDiscussions,
-        productReviews
+        productQuestions,
+        productReviews,
+        uniqueBuyersCount
     });
 
     // Load lightboxes when page loads
@@ -104,7 +105,7 @@ $w.onReady(async function () {
     return readyStore();
 });
 
-async function initPage({ productData, favStatus, suggestedPrompts, productDiscussions, productReviews }) {
+async function initPage({ productData, isInFavorite, suggestedPrompts, productQuestions, productReviews, uniqueBuyersCount }) {
     // Reset all repeaters data to empty array to avoid conflicts etc.
     $w('Repeater').data = [];
     $w('#aiHelperBox').delete();
@@ -114,10 +115,12 @@ async function initPage({ productData, favStatus, suggestedPrompts, productDiscu
 
     // Save data to states and fire connection state event updates via storeon
     setState({ ...productData, _aiProductData: productData });
-    setState({ _isProductInFavs: favStatus });
+    setState({ _isProductInFavs: isInFavorite });
     setState({ _productReviews: productReviews.items });
     setState({ _productRatings: productReviews.ratings });
-    setState({ _productDiscussions: productDiscussions });
+    setState({ _totalProductReviews: productReviews.totalReviews });
+    setState({ _productQuestions: productQuestions });
+    setState({ _uniqueBuyersCount: uniqueBuyersCount });
     setState({ _aiSuggestedPrompts: suggestedPrompts });
 
     // Render Views based on device
@@ -130,11 +133,28 @@ async function initPage({ productData, favStatus, suggestedPrompts, productDiscu
     // Render reviews
     dispatch("renderReviews", appState);
 
-    // Render Discussions
-    dispatch("renderDiscussions", appState);
+    // Render Questions
+    dispatch("renderQuestions", appState);
 
     // Render AI Chat
     dispatch("renderAiChat", appState);
+
+    const { name, slug } = getState();
+    $w('#breadcrumbs').items = [
+        {
+            label: 'Home',
+            link: '/'
+        },
+        {
+            label: 'Category',
+            link: `/category/all-products/`
+        },
+        {
+            label: name,
+            link: `/product-page/${slug}/`,
+            isCurrent: true
+        }
+    ]
 }
 
 function setupStateEvents() {
@@ -147,7 +167,7 @@ function setupStateEvents() {
 
     // These are same for all devices
     dispatch("setupAIStateEvents", appState);
-    dispatch("setupDiscussionsStateEvents", appState);
+    dispatch("setupQuestionsStateEvents", appState);
     dispatch("setupReviewsStateEvents", appState);
 }
 
@@ -155,15 +175,4 @@ function setupStateEvents() {
 async function getProductPageDetails() {
     const slug = path[1];
     return await getProductPageData(slug);
-}
-
-async function checkProductFavStatus() {
-    const isLoggedIn = authentication.loggedIn();
-
-    if (isLoggedIn) {
-        const response = await checkIsInFavs(getState()._id);
-        return response;
-    } else {
-        return false;
-    }
 }

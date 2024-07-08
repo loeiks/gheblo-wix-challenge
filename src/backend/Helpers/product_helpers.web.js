@@ -1,10 +1,14 @@
 import weivData from '@exweiv/weiv-data';
 import { webMethod, Permissions } from 'wix-web-module';
 
-export const getProductIdBySlug = webMethod(Permissions.Anyone, async (slug) => {
+export const getProductBySlug = webMethod(Permissions.Anyone, async (productSlug) => {
     try {
-        const product = await (await weivData.native("Gheblo/WixStoresProducts", true)).findOne({ "entity.slug": slug });
-        return product.entity._id;
+        if (!productSlug) {
+            throw new Error("Product slug is required");
+        }
+
+        const product = await (await weivData.native("Gheblo/WixStoresProducts", true)).findOne({ "entity.slug": productSlug });
+        return product.entity;
     } catch (err) {
         throw new Error(`Error when getting product id via slug, ${err}`);
     }
@@ -15,12 +19,17 @@ export const getProductIdBySlug = webMethod(Permissions.Anyone, async (slug) => 
     }
 })
 
-export const getUniqueBuyersCountForThisProduct = webMethod(Permissions.Anyone, async (productId) => {
+export const getUniqueBuyersCountForThisProduct = webMethod(Permissions.Anyone, async (productSlug) => {
     try {
+        if (!productSlug) {
+            throw new Error("Product slug is required");
+        }
+
+        const product = await getProductBySlug(productSlug);
         const result = await (await weivData.native("Gheblo/WixeComOrders", true)).aggregate([
             {
                 $match: {
-                    "entity.lineItems.catalogReference.catalogItemId": productId
+                    "entity.lineItems.catalogReference.catalogItemId": product._id
                 }
             },
             {
@@ -28,7 +37,7 @@ export const getUniqueBuyersCountForThisProduct = webMethod(Permissions.Anyone, 
             },
             {
                 $match: {
-                    "entity.lineItems.catalogReference.catalogItemId": productId
+                    "entity.lineItems.catalogReference.catalogItemId": product._id
                 }
             },
             {
@@ -41,7 +50,11 @@ export const getUniqueBuyersCountForThisProduct = webMethod(Permissions.Anyone, 
             }
         ]).toArray();
 
-        return result[0].totalUniqueUsers;
+        if (result.length > 0) {
+            return result[0].totalUniqueUsers;
+        } else {
+            return 0;
+        }
     } catch (err) {
         throw new Error(`Error when getting unique buyers sum from orders collection, ${err}`);
     }

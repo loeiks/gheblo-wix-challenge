@@ -22,12 +22,11 @@ export const removeProductFromFavs = webMethod(Permissions.SiteMember, async (pr
     }
 })
 
-export const checkIsInFavs = webMethod(Permissions.SiteMember, async (productId) => {
+export const checkIsInFavs = webMethod(Permissions.Anyone, async (productId) => {
     try {
-        const isInFavs = await (await weivData.native("Gheblo/ProductFavs", true)).findOne({ "productId": productId, "_owner": currentUser.id });
-
-        if (isInFavs) {
-            return true;
+        if (currentUser.loggedIn) {
+            const isInFavs = await (await weivData.native("Gheblo/ProductFavs", true)).findOne({ "productId": productId, "_owner": currentUser.id });
+            return isInFavs ? true : false;
         } else {
             return false;
         }

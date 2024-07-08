@@ -1,14 +1,14 @@
 // Wix API Imports
 import { getRouterData, openLightbox } from 'wix-window-frontend';
-import { query, to } from 'wix-location-frontend';
+import { query } from 'wix-location-frontend';
 // NPM Imports
 import { createStoreon } from 'storeon-velo';
 import { useScope } from 'repeater-scope';
-import { remove } from 'lodash';
 // Public Imports
 import { setupHeader } from 'public/MemberPages/memberHeaders';
 import { showNotifier } from 'public/notifier';
 import { highLightCurrentTab } from 'public/MemberPages/memberMenu';
+import { createQueue } from 'public/Helpers/queue';
 // Backend Imports
 import { publishVideo, deleteVideo, updateVideo } from 'backend/Explore/video_actions.web';
 
@@ -41,8 +41,6 @@ const myAccountStore = (store) => {
                 const productPageUrls = $w('#productLinksInVideo').value;
                 const productTitle = $w('#videoTitleInput').value;
 
-                console.log(productPageUrls);
-
                 const createdVideo = await publishVideo({
                     title: productTitle,
                     videoUrl: _uploadedVideo.fileUrl,
@@ -52,18 +50,12 @@ const myAccountStore = (store) => {
                 if (createdVideo) {
                     const updatedVideosList = [...memberVideos, createdVideo];
                     setState({ memberVideos: updatedVideosList });
-                    dispatch("notify", {
-                        message: "You have published a new video!",
-                        type: "success"
-                    });
+                    dispatch("notify", { message: "Your video has been published.", type: "success" });
 
                     clearFields();
                     setState({ _currentState: "view" });
                 } else {
-                    dispatch("notify", {
-                        message: "Failed to publish video!",
-                        type: "error"
-                    });
+                    dispatch("notify", { message: "Failed to publish video!", type: "error" });
                 }
             }
 
@@ -71,10 +63,7 @@ const myAccountStore = (store) => {
         } catch (err) {
             console.error(err);
             $w('#startUploadingVideoButton').enable();
-            dispatch("notify", {
-                message: "Failed to publish video!",
-                type: "error"
-            });
+            dispatch("notify", { message: "Failed to publish video!", type: "error" });
         }
     });
 
@@ -101,27 +90,18 @@ const myAccountStore = (store) => {
 
                     setState({ memberVideos: [...updatedVideosList, updatedVideo] });
 
-                    dispatch("notify", {
-                        message: "Video details are updated!",
-                        type: "success"
-                    });
+                    dispatch("notify", { message: "Video details updated.", type: "success" });
 
                     clearFields();
                     setState({ _currentState: "view" });
                 } else {
-                    dispatch("notify", {
-                        message: "Failed to update video!",
-                        type: "error"
-                    });
+                    dispatch("notify", { message: "Failed to update video!", type: "error" });
                 }
             }
         } catch (err) {
             $w('#startUploadingVideoButton').enable();
             console.error(err);
-            dispatch("notify", {
-                message: "Failed to update video!",
-                type: "error"
-            });
+            dispatch("notify", { message: "Failed to update video!", type: "error" });
         }
     });
 
@@ -133,25 +113,15 @@ const myAccountStore = (store) => {
             });
 
             if (isDeleted) {
-                dispatch("notify", {
-                    message: "Video has been deleted!",
-                    type: "success"
-                });
-
+                dispatch("notify", { message: "Your video has been deleted.", type: "success" });
                 setState({ memberVideos: updatedVideoList });
                 setState({ _currentState: "view" });
             } else {
-                dispatch("notify", {
-                    message: "Failed to delete video!",
-                    type: "error"
-                });
+                dispatch("notify", { message: "Failed to delete video!", type: "error" });
             }
         } catch (err) {
             console.error(err);
-            dispatch("notify", {
-                message: "Failed to delete video!",
-                type: "error"
-            });
+            dispatch("notify", { message: "Failed to delete video!", type: "error" });
         }
     });
 }
@@ -234,7 +204,7 @@ function setupStateEvents() {
             } else if (_currentState === "view") {  //@ts-ignore
                 $w('#searchInVideosInput, #uploadVideoButton').expand();
                 $w('#stateBox').changeState("viewAndManage");
-                $w('#stateTitle').text = `View Videos (${memberVideosResponse.totalCount})`;
+                $w('#stateTitle').text = `Videos (${memberVideosResponse.length})`;
             }
         }
     });
@@ -253,23 +223,26 @@ function setEventListeners() {
         $item('#videoTitle').text = itemData.title;
     });
 
+    const queue = createQueue();
     //@ts-ignore
     $w('#videoPoster, #videoActionsStack').onMouseIn((event) => {
         const { $item } = useScope(event);
-        $item("#videoActionsStack").show();
+        queue(() => $item("#videoActionsStack").show());
     });
 
     //@ts-ignore
-    $w('#videoPoster, #videoActionsStack').onMouseOut((event) => {
+    $w('#videoPoster').onMouseOut((event) => {
         const { $item } = useScope(event);
-        setTimeout(() => {
-            $item("#videoActionsStack").hide();
-        }, 500);
+        queue(() => $item("#videoActionsStack").hide());
     });
 
     $w('#editVideoButton').onClick((event) => {
         const { itemData } = useScope(event);
         setState({ _currentState: "edit", _currentVideo: itemData });
+    });
+
+    $w('#editorCancel').onClick((event) => {
+        setState({ _currentState: "view" });
     });
 
     $w('#startUploadingVideoButton').onClick(async (event) => {
@@ -321,21 +294,13 @@ function setEventListeners() {
                     }
 
                     $w('#actualUploadInput').reset();
-
-                    dispatch("notify", {
-                        message,
-                        type: "error"
-                    });
+                    dispatch("notify", { message, type: "error" });
                 }
             }
         }
 
         setState({ _uploadedVideo: uploadedVideo[0], _uploadedStatus: true });
-        dispatch("notify", {
-            message: "Your video has been uploaded successfully! You can publish it now.",
-            type: "success"
-        });
-
+        dispatch("notify", { message: "Your video has been uploaded successfully. You can publish it now.", type: "success" });
         $w('#startUploadingVideoButton').enable();
     });
 
@@ -358,7 +323,6 @@ function setEventListeners() {
         openLightbox("AreYouSure")
             .then((answer) => {
                 if (answer) {
-                    console.log(answer);
                     dispatch("deleteVideo", itemData);
                 }
             });
@@ -394,19 +358,13 @@ function validateInputs() {
         const slugs = extractProductUrls(productPageUrls);
 
         if (slugs.length === 0) {
-            dispatch("notify", {
-                message: "Product links are not valid!",
-                type: "error"
-            });
+            dispatch("notify", { message: "Product links aren't valid!", type: "error" });
             return false;
         }
 
         return true;
     } else {
-        dispatch("notify", {
-            message: "Video details are not valid!",
-            type: "error"
-        });
+        dispatch("notify", { message: "Video details are not valid!", type: "error" });
         return false;
     }
 }

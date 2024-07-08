@@ -22,7 +22,10 @@ $w.onReady(async function () {
 function setupInitView(contextData) {
     // Update state
     const { state, itemData } = contextData;
+
+    const currentIndex = findIndex(state._reviewsWithPhotosOnly, (review) => review._id === itemData._id);
     setState({ _currentReview: itemData, state });
+    setState({ currentIndex });
 }
 
 function setupStateEvents() {

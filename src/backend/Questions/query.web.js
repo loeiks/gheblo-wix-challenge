@@ -125,7 +125,6 @@ export const getProductQuestions = webMethod(Permissions.Anyone, async (productS
 
         return {
             questions: recursivelyConvertIds(items),
-            items,
             product,
             hasNext: hasNext()
         };

@@ -1,9 +1,12 @@
 import { Permissions, webMethod } from "wix-web-module";
 import weivData from '@exweiv/weiv-data';
-import { v4 as uuidv4 } from 'uuid';
 
 export const getProductData = webMethod(Permissions.Anyone, async (slug) => {
     try {
+        if (!slug) {
+            throw new Error("Error when getting product data/details via slug of the product, no slug provided");
+        }
+
         let returnedProductData;
         const productQueryResult = await weivData.query("Gheblo/WixStoresProducts").eq("entity.slug", slug).find({ suppressAuth: true });
         const product = productQueryResult.items[0].entity;

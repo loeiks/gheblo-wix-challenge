@@ -2,6 +2,7 @@ import weivData from '@exweiv/weiv-data';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getSecretValue } from '@exweiv/wix-secret-helpers';
 import { webMethod, Permissions } from 'wix-web-module';
+import { validateParamsExists } from 'backend/validator';
 
 export const getSuggestedPrompts = webMethod(Permissions.Anyone, async () => {
     try {
@@ -61,6 +62,9 @@ export const getSuggestedPrompts = webMethod(Permissions.Anyone, async () => {
 export const getGenAIResponse = webMethod(Permissions.Anyone,
     async (prompt, productData, history) => {
         try {
+            // Check required parameters are provided
+            validateParamsExists(__filename, "getGenAIResponse", prompt, productData, history);
+
             const geminiAPIKey = await getSecretValue("GoogleGeminiAPIKey");
             const genAI = new GoogleGenerativeAI(geminiAPIKey);
             const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });

@@ -19,6 +19,10 @@ th {
     background-color: #f7faf8;
 }
 
+.product-page-info-section-item a {
+    color: #006a63;
+}
+
 @keyframes rotateAnimation {
     from {
         transform: rotate(180deg);
@@ -51,6 +55,7 @@ th {
 .in-favs {
     background-color: #bf0033;
     transition: 0.3s ease-in-out;
+    border: none !important;
 }
 
 .in-favs span {
@@ -69,7 +74,7 @@ th {
 /* Product Page Styling End */
 
 /* Notifier Styles Start */
-.notifier-standart {
+.notifier-standard {
     background-color: #006a63;
 }
 
@@ -174,3 +179,19 @@ th {
 .cancelled-order-status-text h5 {
     color: #ba1a1a !important;
 }
+
+/* Limit Sections */
+
+/* :root {
+    --scroll-bar-size: 17px;
+    --max-width: calc(1920px + var(--scroll-bar-size));
+    --center-sections: calc((100vw - var(--max-width)) / 2);
+}
+
+@media screen and (min-width: 1921px) {
+    .section {
+        grid-template-columns: minmax(0px, var(--max-width)) !important;
+        margin-left: var(--center-sections) !important;
+        margin-right: var(--center-sections) !important;
+    }
+} */

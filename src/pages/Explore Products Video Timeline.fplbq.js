@@ -67,19 +67,13 @@ const exploreFeedStore = (store) => {
     });
 
     store.on("navigateToCheckout", async () => {
-        store.dispatch("notify", {
-            message: "We are redirecting you to the checkout page, please wait...",
-            timeout: 5000
-        });
+        store.dispatch("notify", { message: "We are redirecting you to the checkout page, please wait...", timeout: 5000 });
 
         try {
             const checkoutURL = await getCheckoutURLForCurrentCart();
             to(checkoutURL);
         } catch (err) {
-            store.dispatch("notify", {
-                message: "Is your cart empty? (an error occurred)",
-                type: "error"
-            });
+            store.dispatch("notify", { message: "Is your cart empty? (an error occurred)!", type: "error" });
         }
     });
 }

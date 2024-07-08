@@ -1,7 +1,7 @@
 import { cart } from "wix-stores-frontend";
 import { authentication } from "wix-members-frontend";
 import { formFactor, openLightbox } from "wix-window-frontend";
-import { to, prefix } from "wix-location-frontend";
+import { to, prefix, url } from "wix-location-frontend";
 
 $w.onReady(function () {
     const unTouchPages = [
@@ -12,6 +12,9 @@ $w.onReady(function () {
     if (unTouchPages.includes(prefix) !== true) {
         initClusters();
     }
+
+    // Refresh page when user logs-in
+    authentication.onLogin(() => to(url));
 });
 
 // Global functions are always called as Clusters to be notified in Clusters IST 1-2
@@ -51,6 +54,7 @@ function eventListeners() {
     if ($w('#startChat').rendered) {
         $w('#startChat').onClick(() => {
             $w('#wixChatBox').maximize();
+            $w('#wixChatBox').expand();
         });
     }
 }

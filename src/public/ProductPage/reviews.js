@@ -33,44 +33,52 @@ export function setupReviewsStateEvents(state, store) {
     setEventListeners(state, store);
 
     connect("_productRatings", ({ _productRatings }) => {
-        $w('#reviewsAvgRating, #reviewsAvgRatingInExpanded').rating = _productRatings.avgRating;
-        $w('#totalNumberOfRatings, #totalRatingsInExpanded').text = `${_productRatings.totalRatings} Ratings`;
-        $w('#totalNumberOfReviews, #totalReviewsInExpanded').text = `${_productRatings.totalReviews} Reviews`;
-        $w("#allReviewsText").text = `All Reviews (${_productRatings.totalReviews})`;
+        if (_productRatings) {
+            $w('#reviewsAvgRating, #reviewsAvgRatingInExpanded').rating = _productRatings.avgRating;
+            $w('#totalNumberOfRatings, #totalRatingsInExpanded').text = `${_productRatings.totalRatings} Ratings`;
+            $w('#totalNumberOfReviews, #totalReviewsInExpanded').text = `${_productRatings.totalReviews} Reviews`;
+            $w("#allReviewsText").text = `All Reviews (${_productRatings.totalReviews})`;
+        }
     });
 
     connect("_productReviews", ({ _productReviews }) => {
-        // For the preview section show only first 4 reviews. For rest attach all of them.
-        $w('#reviewsOverviewRepeater').data = _productReviews.slice(0, 4);
-        $w('#allReviewsRepeater').data = _productReviews;
+        if (_productReviews?.length > 0) {
+            $w('#reviewsSection').restore();
 
-        // Run the photos slider update
-        const _reviewsWithPhotosOnly = _productReviews.filter((review) => {
-            if (review.content.media) {
-                return review.content.media.length > 0;
-            } else {
-                return false;
-            }
-        })
+            // For the preview section show only first 4 reviews. For rest attach all of them.
+            $w('#reviewsOverviewRepeater').data = _productReviews.slice(0, 4);
+            $w('#allReviewsRepeater').data = _productReviews;
 
-        // Setup repeaters for photo only reviews
-        let photosSliderData = new Array();
-        for (const review of _reviewsWithPhotosOnly) {
-            for (const mediaSrc of review.content.media) {
-                photosSliderData.push({
-                    ...review,
-                    reviewId: review._id,
-                    _id: uuidv4(),
-                    mediaSrc
-                });
+            // Run the photos slider update
+            const _reviewsWithPhotosOnly = _productReviews.filter((review) => {
+                if (review.content.media) {
+                    return review.content.media.length > 0;
+                } else {
+                    return false;
+                }
+            })
+
+            // Setup repeaters for photo only reviews
+            let photosSliderData = new Array();
+            for (const review of _reviewsWithPhotosOnly) {
+                for (const mediaSrc of review.content.media) {
+                    photosSliderData.push({
+                        ...review,
+                        reviewId: review._id,
+                        _id: uuidv4(),
+                        mediaSrc
+                    });
+                }
             }
+
+            setState({ _reviewsWithPhotosOnly: photosSliderData });
+        } else {
+            $w('#reviewsSection').delete();
         }
-
-        setState({ _reviewsWithPhotosOnly: photosSliderData });
     });
 
     connect("_reviewsWithPhotosOnly", ({ _reviewsWithPhotosOnly }) => {
-        if (_reviewsWithPhotosOnly.length > 0) {
+        if (_reviewsWithPhotosOnly?.length > 0) {
             // Mark that there are photos in the reviews
             setState({ _reviewsHasPhotos: true });
             // Pass data that only has photos
@@ -94,7 +102,15 @@ export function setupReviewsStateEvents(state, store) {
         if (_currentReviewsViewSection) {
             handleReviewsView(_currentReviewsViewSection);
         }
-    })
+    });
+
+    connect("_totalProductReviews", "_productReviews", ({ _totalProductReviews, _productReviews }) => {
+        if (_productReviews?.length === _totalProductReviews) {
+            $w('#seeMoreReviewsButton').collapse();
+        } else {
+            $w('#seeMoreReviewsButton').expand();
+        }
+    });
 }
 
 /**
@@ -158,7 +174,21 @@ function setEventListeners(state, store) {
     // Handle photo click on review
     $w('#photoItemBoxOverview, #photoItemBoxExpanded').onClick((event) => {
         const { itemData } = useScope(event);
+        // Open Lightbox
         openLightbox("ReviewsPhotosExplore", { state: getState(), itemData });
+    });
+
+    // Just to enable cursor
+    $w('#reviewPhotosBox').onClick(() => { });
+    $w('#reviewPhoto1, #reviewPhoto2, #reviewPhoto3').onClick((event) => {
+        const { itemData } = useScope(event);
+        const { _reviewsWithPhotosOnly } = getState();
+        const photoData =
+            _reviewsWithPhotosOnly.filter(review => review.reviewId === itemData._id)
+            [event.target.id.endsWith("1") ? 0 : event.target.id.endsWith("2") ? 1 : 2];
+
+        // Open Lightbox
+        openLightbox("ReviewsPhotosExplore", { state: getState(), itemData: photoData });
     });
 }
 

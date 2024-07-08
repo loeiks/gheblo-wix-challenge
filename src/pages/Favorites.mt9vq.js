@@ -110,15 +110,9 @@ function setEventListeners() {
         if (response) {
             remove(data, obj => obj._id === itemData._id);
             setState({ favoriteProducts: data });
-            dispatch("notify", {
-                message: "Product removed from your wishlist!",
-                type: "success"
-            });
+            dispatch("notify", { message: "Product removed from your favorites.", type: "success" });
         } else {
-            dispatch("notify", {
-                message: "You couldn't remove product from your wishlist!",
-                type: "error"
-            });
+            dispatch("notify", { message: "You couldn't remove product from your favorites!", type: "error" });
         }
     });
 

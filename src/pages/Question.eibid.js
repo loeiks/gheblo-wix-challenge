@@ -212,10 +212,10 @@ function setEventListeners() {
             const isDeleted = await deleteQuestion(question._id);
 
             if (isDeleted) {
-                dispatch("notify", { message: "Question deleted successfully. Redirecting back to questions...", type: "success" });
+                dispatch("notify", { message: "Question deleted successfully. Redirecting you back to questions...", type: "success" });
                 to(`https://gheblo.com/questions/${path[0]}`);
             } else {
-                dispatch("notify", { message: "Failed to delete question.", type: "error" });
+                dispatch("notify", { message: "Failed to delete question!", type: "error" });
             }
         }
     })
@@ -234,7 +234,7 @@ function setEventListeners() {
                 const updatedReplies = replies.filter(r => r._id !== itemData._id);
                 setState({ replies: updatedReplies });
             } else {
-                dispatch("notify", { message: "Failed to delete reply.", type: "error" });
+                dispatch("notify", { message: "Failed to delete reply!", type: "error" });
             }
         }
     });
@@ -259,7 +259,7 @@ async function handleUpdate() {
         if (updatedQuestion) {
             dispatch("notify", { message: "Question updated successfully.", type: "success" });
         } else {
-            dispatch("notify", { message: "Failed to update question.", type: "error" });
+            dispatch("notify", { message: "Failed to update question!", type: "error" });
         }
 
         setState({ question: { ...question, ...updatedQuestion } });
@@ -269,7 +269,7 @@ async function handleUpdate() {
         if (updatedReply) {
             dispatch("notify", { message: "Reply updated successfully.", type: "success" });
         } else {
-            dispatch("notify", { message: "Failed to update reply.", type: "error" });
+            dispatch("notify", { message: "Failed to update reply!", type: "error" });
         }
 
         const newReplyData = {
@@ -299,7 +299,7 @@ async function handleReply() {
         dispatch("notify", { message: "Reply sent successfully. Reloding page...", type: "success" });
         to(url);
     } else {
-        dispatch("notify", { message: "Failed to send reply.", type: "error" });
+        dispatch("notify", { message: "Failed to send reply!", type: "error" });
     }
 
     $w('#sendQuestionReplyButton').label = "Send Reply";
@@ -314,11 +314,11 @@ function validateInput(element = $w('#editorTextBox')) {
         if (value.length > 20) {
             return true;
         } else {
-            dispatch("notify", { message: "Text must be at least 20 characters long.", type: "error" });
+            dispatch("notify", { message: "Text must be at least 20 characters long!", type: "error" });
             return false;
         }
     } else {
-        dispatch("notify", { message: "Invalid question/reply.", type: "error" });
+        dispatch("notify", { message: "Invalid question/reply!", type: "error" });
         return false;
     }
 }

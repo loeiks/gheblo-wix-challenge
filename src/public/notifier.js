@@ -25,11 +25,11 @@ export function showNotifier({
     timeoutId ? clearTimeout(timeoutId) : () => { };
 
     if (!type) {
-        type = "standart";
+        type = "standard";
     }
 
     if (!timeout) {
-        timeout = 3000;
+        timeout = 3500;
     }
 
     $w('#notifierText').text = message;
