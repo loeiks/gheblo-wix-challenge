@@ -1,8 +1,8 @@
 import weivData from '@exweiv/weiv-data';
 import { webMethod, Permissions } from 'wix-web-module';
 import { currentUser } from 'wix-users-backend';
-import { getProductBySlug } from 'backend/Helpers/product_helpers.web.js';
-import { recursivelyConvertIds } from 'backend/recursive_id_converter.js';
+import { getProductBySlug } from 'backend/Helpers/product_helpers.web';
+import { recursivelyConvertIds } from 'backend/Helpers/recursive_id_converter';
 
 export const getProductQuestions = webMethod(Permissions.Anyone, async (productSlug, skip = 0, limit = 0, searchPhrase = undefined) => {
     try {

@@ -2,6 +2,7 @@ import { getRouterData } from 'wix-window-frontend';
 import { createStoreon } from 'storeon-velo';
 import { query, to } from 'wix-location-frontend';
 import { authentication } from 'wix-members-frontend';
+import { setTitle } from 'wix-seo-frontend';
 // Import View Renderers
 import { renderFeed, setupFeedStateEvents } from 'public/Explore/feed';
 // Public Imports
@@ -83,6 +84,7 @@ const store = createStoreon([exploreFeedStore]);
 const { connect, dispatch, getState, readyStore, setState } = store;
 
 $w.onReady(function () {
+    setTitle("Explore Feed | Gheblo");
     initPage();
     return readyStore();
 });

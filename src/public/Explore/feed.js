@@ -9,6 +9,7 @@ import { saveStats } from 'backend/Explore/video_stats.web';
 import { queryVideos } from "backend/Explore/query_videos.web.js";
 import { local } from "wix-storage-frontend";
 import { _icons_ } from '../icons';
+import wixSeoFrontend from "wix-seo-frontend";
 
 /**
  * @param {{[key: string]: any}} state 
@@ -64,6 +65,10 @@ export function setupFeedStateEvents(state, store) {
         if (_currentVideoData && _currentVideoPlayer) {
             setState({ _previousVideoData: _currentVideoData });
             setState({ _previousVideoPlayer: _currentVideoPlayer });
+        }
+
+        if (_currentVideoData) {
+            wixSeoFrontend.setTitle(`${_currentVideoData.title} | Gheblo Explore`);
         }
     });
 

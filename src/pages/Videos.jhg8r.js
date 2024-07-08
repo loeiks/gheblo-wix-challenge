@@ -1,5 +1,5 @@
 // Wix API Imports
-import { getRouterData, openLightbox } from 'wix-window-frontend';
+import { copyToClipboard, getRouterData, openLightbox } from 'wix-window-frontend';
 import { query } from 'wix-location-frontend';
 // NPM Imports
 import { createStoreon } from 'storeon-velo';
@@ -220,6 +220,8 @@ function setupStateEvents() {
 function setEventListeners() {
     $w('#videosRepeater').onItemReady(($item, itemData, index) => {
         $item('#videoPoster').src = itemData.thumbnailUrl;
+        $item('#videoPoster').link = `https://www.gheblo.com/explore/${itemData._id}`;
+        $item('#videoPoster').target = "_blank";
         $item('#videoTitle').text = itemData.title;
     });
 
@@ -326,6 +328,13 @@ function setEventListeners() {
                     dispatch("deleteVideo", itemData);
                 }
             });
+    });
+
+    $w('#shareVideoURL').onClick((event) => {
+        const { itemData } = useScope(event);
+        const url = `https://www.gheblo.com/explore/${itemData._id}`;
+        copyToClipboard(url);
+        dispatch("notify", { message: "Video URL has been copied to your clipboard.", type: "success" });
     })
 }
 

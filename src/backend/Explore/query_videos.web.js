@@ -1,6 +1,7 @@
 import { Permissions, webMethod } from 'wix-web-module';
 import { currentUser } from 'wix-users-backend';
 import weivData, { convertId } from '@exweiv/weiv-data';
+import { recursivelyConvertIds } from 'backend/Helpers/recursive_id_converter';
 
 export const queryVideos = webMethod(Permissions.Anyone, async (skipCount, notIncludedVideoId) => {
     try {
@@ -91,7 +92,7 @@ export const queryVideos = webMethod(Permissions.Anyone, async (skipCount, notIn
                 .run({ suppressAuth: true });
 
             return {
-                items: aggregateResult.items,
+                items: recursivelyConvertIds(aggregateResult.items),
                 skipCount: aggregateResult.length
             };
         } else {
@@ -114,7 +115,7 @@ export const queryVideos = webMethod(Permissions.Anyone, async (skipCount, notIn
                 .find({ suppressAuth: true, suppressHooks: true });
 
             return {
-                items: randomVideos.items,
+                items: recursivelyConvertIds(randomVideos.items),
                 skipCount: randomVideos.length
             };
         }
@@ -179,10 +180,10 @@ export const getVideo = webMethod(Permissions.Anyone, async (videoId) => {
                 }
             )
             const videos = await videosAggregation.run({ suppressAuth: true });
-            return videos.items[0];
+            return recursivelyConvertIds(videos.items)[0];
         } else {
             const videos = await videosAggregation.run({ suppressAuth: true });
-            return videos.items[0];
+            return recursivelyConvertIds(videos.items)[0];
         }
     } catch (err) {
         throw new Error(`Error when getting explore video by id, ${err}`);

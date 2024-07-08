@@ -1,6 +1,7 @@
 import { Permissions, webMethod } from 'wix-web-module';
 import weivData, { convertId } from '@exweiv/weiv-data';
 import { currentUser } from 'wix-users-backend';
+import { removeQueryParameters } from 'backend/Helpers/url_helpers';
 
 export const publishVideo = webMethod(Permissions.SiteMember,
     /**
@@ -122,7 +123,7 @@ export const removeLike = webMethod(Permissions.SiteMember, async (videoId) => {
 
 // HELPERS
 function extractProductUrls(urlsString) {
-    const urlArray = urlsString.trim().split(/[, ]+/);
+    const urlArray = removeQueryParameters(urlsString).trim().split(/[, ]+/);
     const productUrls = urlArray.map(url => {
         const match = url.match(/\/product-page\/([^/]+)/);
         return match ? `/product-page/${match[1]}` : undefined;

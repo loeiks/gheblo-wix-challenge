@@ -2,7 +2,7 @@ import weivData from '@exweiv/weiv-data';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getSecretValue } from '@exweiv/wix-secret-helpers';
 import { webMethod, Permissions } from 'wix-web-module';
-import { validateParamsExists } from 'backend/validator';
+import { validateParamsExists } from 'backend/Helpers/validator';
 
 export const getSuggestedPrompts = webMethod(Permissions.Anyone, async () => {
     try {

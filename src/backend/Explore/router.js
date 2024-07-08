@@ -1,7 +1,8 @@
-import { ok, sendStatus, redirect, notFound, forbidden } from 'wix-router';
+import { ok, sendStatus, redirect, notFound, forbidden, WixRouterSitemapEntry } from 'wix-router';
 import { queryVideos, getVideo } from 'backend/Explore/query_videos.web';
 import { currentUser } from 'wix-users-backend'
 import { queryProductFavs } from 'backend/Products/favs.web';
+import weivData from '@exweiv/weiv-data';
 
 export async function explore_Router(request) {
     try {
@@ -44,7 +45,23 @@ export async function explore_Router(request) {
 
 export async function explore_SiteMap(sitemapRequest) {
     try {
-        return [];
+        const { items } = await weivData.query("Gheblo/ShortVideos").limit(100).find({ suppressAuth: true, suppressHooks: true });
+
+        const sitemapEntries = items.map((video) => {
+            const entry = new WixRouterSitemapEntry();
+            entry.title = video.title;
+            entry.changeFrequency = "daily";
+            entry.pageName = `${video.title} | Gheblo Explore`;
+            entry.lastModified = video._updatedDate;
+            entry.url = `https://www.gheblo.com/explore/${video._id}`;
+            return entry;
+        });
+
+        const homePage = new WixRouterSitemapEntry();
+        homePage.title = "Explore Feed | Gheblo";
+        homePage.url = "https://www.gheblo.com/explore";
+
+        return [...sitemapEntries, homePage];
     } catch (err) {
         throw new Error(`Error while rendering explore pages sitemap: ${err}`);
     }
