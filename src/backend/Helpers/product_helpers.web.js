@@ -17,7 +17,7 @@ export const getProductBySlug = webMethod(Permissions.Anyone, async (productSlug
         tags: ["product-ids-by-slug"],
         ttl: 604800 // cache 1 week
     }
-})
+});
 
 export const getUniqueBuyersCountForThisProduct = webMethod(Permissions.Anyone, async (productSlug) => {
     try {
@@ -62,5 +62,19 @@ export const getUniqueBuyersCountForThisProduct = webMethod(Permissions.Anyone, 
     cache: {
         tags: ["product-unique-buyers-count"],
         ttl: 172800 // cache 48 hours
+    }
+});
+
+export const getProductSlugById = webMethod(Permissions.Anyone, async (productId) => {
+    try {
+        const productData = await (await weivData.native("Gheblo/WixStoresProducts", true)).findOne({ "entity._id": productId });
+        return productData.entity.slug;
+    } catch (err) {
+        throw new Error(`Error when getting product slug by id, ${err}`);
+    }
+}, {
+    cache: {
+        tags: ["product-slugs-by-ids"],
+        ttl: 604800 // cache 1 week
     }
 });

@@ -1,17 +1,19 @@
-import { ok, sendStatus, redirect, notFound, forbidden } from 'wix-router';
+import { ok, sendStatus, redirect, notFound, forbidden, router } from 'wix-router';
 import { getCurrentMemberEComData } from 'backend/Members/member_data.web.js';
 import { getRecentOrdersOfCurrentMember } from './header.web';
 import { getCurrentMemberFavoriteProducts } from './favorites.web';
 import { getCurrentMemberVideos } from './videos.web';
 import { queryAllProductsCurrentMemberHasntReviewed, queryAllReviewsOfCurrentMember } from './reviews.web';
 import { getCurrentMemberOrders } from './orders.web';
+import { queryMemberQuestionsAndReplies } from './questions.web';
 
 const pagesByPath = {
     account: "My Account",
     favorites: "Favorites",
     videos: "Videos",
     reviews: "Reviews",
-    orders: "Orders"
+    orders: "Orders",
+    questions: "Questions"
 }
 
 export async function account_Router(request) {
@@ -40,6 +42,12 @@ export async function account_Router(request) {
             }
             case "orders": {
                 routerData.orders = await getCurrentMemberOrders();
+                break;
+            }
+            case "questions": {
+                const { questions, replies } = await queryMemberQuestionsAndReplies();
+                routerData.questions = questions;
+                routerData.replies = replies;
                 break;
             }
             default: {

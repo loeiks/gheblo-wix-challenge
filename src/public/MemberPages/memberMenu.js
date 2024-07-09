@@ -5,7 +5,8 @@ const pagesByPath = {
     favorites: "Favorites",
     videos: "Videos",
     reviews: "Reviews",
-    orders: "Orders"
+    orders: "Orders",
+    questions: "Questions"
 }
 
 export function highLightCurrentTab() {
