@@ -43,3 +43,23 @@ export const queryProductFavs = webMethod(Permissions.SiteMember, async () => {
         throw new Error(`Error when querying member's favs, ${err}`);
     }
 });
+
+export const toggleFavoriteProduct = webMethod(Permissions.SiteMember, async (productId) => {
+    try {
+        if (currentUser.loggedIn) {
+            const isInFavs = await (await weivData.native("Gheblo/ProductFavs", true)).findOne({ "productId": productId, "_owner": currentUser.id });
+
+            if (isInFavs) {
+                await removeProductFromFavs(productId);
+                return false;
+            } else {
+                await addProductToFavs(productId);
+                return true;
+            }
+        } else {
+            return false;
+        }
+    } catch (err) {
+        throw new Error(`Error when toggling favorite status of product for member, ${err}`);
+    }
+})

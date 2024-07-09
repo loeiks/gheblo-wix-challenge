@@ -81,7 +81,7 @@ export function setupDesktopStateEvents(state, { dispatch, setState, getState, c
         } else {
             // Has discount
             $w('#formattedPrice').text = `${discountedPrice}€`;
-            $w('#discount').text = `-%${calculateDiscountPercentage(price, discountedPrice).toFixed(0)}`;
+            $w('#discount').text = `-%${calculateDiscountPercentage(price, discountedPrice)}`;
             $w('#undiscountedPrice').text = `${price}€`;
             $w('#discount, #undiscountedPrice').expand();
         }

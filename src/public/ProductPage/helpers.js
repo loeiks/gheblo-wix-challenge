@@ -4,5 +4,5 @@ export function calculateDiscountPercentage(originalPrice, discountedPrice) {
     }
     const discountAmount = originalPrice - discountedPrice;
     const discountPercentage = (discountAmount / originalPrice) * 100;
-    return discountPercentage;
+    return discountPercentage.toFixed(0);
 }

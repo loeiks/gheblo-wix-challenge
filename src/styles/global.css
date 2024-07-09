@@ -234,16 +234,17 @@ th {
 
 /* Limit Sections */
 
-/* :root {
-    --scroll-bar-size: 17px;
-    --max-width: calc(1920px + var(--scroll-bar-size));
-    --center-sections: calc((100vw - var(--max-width)) / 2);
+/* Filters */
+
+.has-filters {
+    border: none !important;
+    background-color: black !important;
 }
 
-@media screen and (min-width: 1921px) {
-    .section {
-        grid-template-columns: minmax(0px, var(--max-width)) !important;
-        margin-left: var(--center-sections) !important;
-        margin-right: var(--center-sections) !important;
-    }
-} */
+.has-filters svg {
+    fill: white !important;
+}
+
+.has-filters:hover {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+}

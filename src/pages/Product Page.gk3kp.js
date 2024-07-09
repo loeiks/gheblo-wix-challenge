@@ -1,5 +1,5 @@
 // Import Velo/Wix APIs
-import { path, query } from 'wix-location-frontend';
+import { path, query, onChange, url, to } from 'wix-location-frontend';
 import { prefetchPageResources } from 'wix-site-frontend';
 import { authentication } from 'wix-members-frontend';
 import { formFactor } from 'wix-window-frontend';
@@ -172,6 +172,10 @@ async function initPage({ productData, isInFavorite, suggestedPrompts, productQu
             isCurrent: true
         }
     ]
+
+    onChange(() => {
+        to(url);
+    })
 }
 
 function setupStateEvents() {
