@@ -2,6 +2,7 @@ import { webMethod, Permissions } from "wix-web-module";
 import { getMemberProfileData } from "backend/Members/member_data.web.js";
 import weivData, { convertId } from '@exweiv/weiv-data';
 import { getProductBySlug } from "backend/Helpers/product_helpers.web.js";
+import { recursivelyConvertIds } from 'backend/Helpers/recursive_id_converter.js';
 
 export const createReview = webMethod(Permissions.SiteMember,
     /**
@@ -192,5 +193,38 @@ export const getProductReviewRatingDetails = webMethod(Permissions.Anyone, async
         return ratings.items[0];
     } catch (err) {
         throw new Error(`Error while getting product rating reviews, ${err}`);
+    }
+});
+
+export const queryReviewsForAI = webMethod(Permissions.Anyone, async (productSlug) => {
+    try {
+        const product = await getProductBySlug(productSlug);
+        const result = await (await weivData.native("Gheblo/ProductReviews", true)).find({
+            "productId": {
+                $eq: product._id
+            },
+            "content.body": {
+                $exists: true,
+                $ne: null
+            },
+        }, { sort: { "_id": -1 }, limit: 20, skip: 0 }).toArray();
+
+        const totalReviews = result.length > 0 ?
+            await (await weivData.native("Gheblo/ProductReviews", true)).countDocuments({
+                "productId": {
+                    $eq: product._id
+                },
+                "content.body": {
+                    $exists: true,
+                    $ne: null
+                }
+            }) : 0;
+
+        return {
+            items: recursivelyConvertIds(result),
+            totalReviews,
+        }
+    } catch (err) {
+        throw new Error(`Error while querying reviews for AI, ${err}`);
     }
 })

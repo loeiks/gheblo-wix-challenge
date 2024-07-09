@@ -5,6 +5,8 @@ import { authentication } from 'wix-members-frontend';
 import { formFactor } from 'wix-window-frontend';
 // Import NPM Packages
 import { createStoreon } from 'storeon-velo';
+import { v4 as uuidv4 } from 'uuid';
+import { initial } from 'lodash';
 // Import Backend Functions
 import { getGenAIResponse } from 'backend/AI/ai_chat.web';
 import { getProductPageData } from 'backend/Pages/productPage.web';
@@ -67,8 +69,23 @@ const productDataStore = (store) => {
     store.on("getPromptResponse", async ({ _aiProductData }, prompt) => {
         // Disable chat input and wait for new response (input enabled on connect)
         $w('#aiPromptInput').disable();
-        const response = await getGenAIResponse(prompt, _aiProductData, $w('#aiChatRepeater').data);
+
+        const currentData = $w('#aiChatRepeater').data;
+        $w('#aiChatRepeater').data = [
+            ...currentData, {
+                _id: uuidv4(),
+                parts: [{ text: "_typing_lottie" }],
+                role: "model"
+            }
+        ];
+
+        const history = initial($w('#aiChatRepeater').data);
+
+        console.log(history);
+
+        const response = await getGenAIResponse(prompt, _aiProductData, history);
         store.set({ _aiResponse: response });
+        $w('#aiPromptInput').enable();
     });
 
     store.on("showLoginScreen", () => {

@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { marked } from 'marked';
+import { initial } from 'lodash';
 
 /**
  * @param {{[key: string]: any}} state 
@@ -32,8 +33,20 @@ export function setupAIStateEvents(state, store) {
 
     connect("_aiResponse", ({ _aiResponse }) => {
         if (_aiResponse) {
-            $w('#aiPromptInput').enable();
-            updateAiChatHistory(_aiResponse, "model");
+            const currentData = initial($w('#aiChatRepeater').data);
+            const newData = [...currentData, {
+                _id: uuidv4(),
+                parts: [{ text: _aiResponse }],
+                role: "model"
+            }];
+
+            setState({ _aiChatArray: newData });
+        }
+    });
+
+    connect("_aiChatArray", ({ _aiChatArray }) => {
+        if (_aiChatArray?.length > 0) {
+            $w('#aiChatRepeater').data = _aiChatArray;
         }
     });
 }
@@ -45,14 +58,23 @@ export function setupAIStateEvents(state, store) {
  */
 function setEventListeners(state, { dispatch, setState, getState, connect }) {
     $w('#aiChatRepeater').onItemReady(($item, itemData, index) => {
-        $item('#aiChatMessageText').html = marked(itemData.parts[0].text);
+        console.log(itemData);
+
+        if (itemData.parts[0].text === "_typing_lottie") {
+            $item('#typingAnimationLottie').expand();
+            $item('#aiChatMessageText').collapse();
+        } else {
+            $item('#typingAnimationLottie').collapse();
+            $item('#aiChatMessageText').expand();
+            $item('#aiChatMessageText').html = marked(itemData.parts[0].text);
+        }
     });
 
     $w('#aiQuestionSuggestions').onChange((event) => {
         const selectedPrompt = event.target.value[0];
 
         if (selectedPrompt) {
-            updateAiChatHistory(selectedPrompt, "user");
+            updateAiChatHistory(selectedPrompt);
             dispatch("getPromptResponse", selectedPrompt);
         }
     });
@@ -66,6 +88,20 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
             sendPrompt(dispatch);
         }
     });
+
+    $w('#aiPromptInput').onInput((event) => {
+        const charCount = event.target.value.length;
+        const size = Math.round(charCount / 26);
+
+        if (size > 1 && size < 15) {
+            $w('#aiPromptInput').customClassList.values().forEach(v => $w('#aiPromptInput').customClassList.remove(v));
+            $w('#aiPromptInput').customClassList.add(`ai-textbox-h${size}`);
+        } else {
+            if (charCount < 26) {
+                $w('#aiPromptInput').customClassList.values().forEach(v => $w('#aiPromptInput').customClassList.remove(v));
+            }
+        }
+    })
 
     $w('#closeAiChat').onClick(() => {
         $w('#aiHelperBox').delete();
@@ -83,12 +119,12 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
 }
 
 // HELPER FUNCTIONS
-function updateAiChatHistory(message, role) {
+function updateAiChatHistory(message) {
     const currentData = $w('#aiChatRepeater').data;
     const newData = [...currentData, {
         _id: uuidv4(),
         parts: [{ text: message }],
-        role
+        role: "user"
     }];
 
     $w('#aiChatRepeater').data = newData;
@@ -104,12 +140,11 @@ function updateAiChatHistory(message, role) {
 
 function sendPrompt(dispatch) {
     const currentPrompt = $w('#aiPromptInput').value;
-    if (currentPrompt) {
-        if (currentPrompt.length > 1) {
-            updateAiChatHistory(currentPrompt, "user");
-            dispatch("getPromptResponse", currentPrompt);
-            $w('#aiPromptInput').value = null;
-            $w('#aiPromptInput').resetValidityIndication();
-        }
+    if (currentPrompt?.length > 0) {
+        updateAiChatHistory(currentPrompt);
+        dispatch("getPromptResponse", currentPrompt);
+        $w('#aiPromptInput').value = null;
+        $w('#aiPromptInput').resetValidityIndication();
+        $w('#aiPromptInput').customClassList.values().forEach(v => $w('#aiPromptInput').customClassList.remove(v));
     }
 }

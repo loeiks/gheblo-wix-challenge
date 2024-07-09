@@ -2,6 +2,7 @@ import moment from 'moment';
 import { _icons_ } from '../icons';
 import { to } from 'wix-location-frontend';
 import { useScope } from 'repeater-scope';
+import { currentMember, authentication } from 'wix-members-frontend';
 
 /**
  * @param {{[key: string]: any}} state 
@@ -15,7 +16,11 @@ export function renderQuestions(state, store) {
  * @param {{[key: string]: any}} state 
  * @param {import("storeon-velo").StoreonVeloApi} store
  */
-function setupInitView(state, { dispatch, setState, getState, connect }) { };
+async function setupInitView(state, { dispatch, setState, getState, connect }) {
+    if (authentication.loggedIn()) {
+        setState({ _currentMember: await currentMember.getMember({ fieldsets: ["PUBLIC"] }) });
+    }
+};
 
 /**
  * @param {{[key: string]: any}} state 
@@ -70,7 +75,8 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
         $item('#questionMemberUsernameAndDate').html = `<p class="font_7">${profile.nickname} | <span style="color: #5d5e61">${moment(itemData._updatedDate).format('DD MMM YYYY')}</span></p>`;
         $item('#questionText').text = itemData.text;
 
-        if (itemData._owner === getState()._currentMember._id) { //@ts-ignore
+        const { _currentMember } = getState();
+        if (itemData._owner === _currentMember?._id) { //@ts-ignore
             $item('#deleteQuestion, #editQuestion').expand();
         }
 

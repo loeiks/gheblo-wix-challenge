@@ -109,6 +109,58 @@ th {
     width: auto !important;
 }
 
+.ai-textbox-h2 {
+    height: 70px;
+}
+
+.ai-textbox-h3 {
+    height: 85px;
+}
+
+.ai-textbox-h4 {
+    height: 100px;
+}
+
+.ai-textbox-h5 {
+    height: 115px;
+}
+
+.ai-textbox-h6 {
+    height: 130px;
+}
+
+.ai-textbox-h7 {
+    height: 145px;
+}
+
+.ai-textbox-h8 {
+    height: 160px;
+}
+
+.ai-textbox-h9 {
+    height: 175px;
+}
+
+.ai-textbox-h10 {
+    height: 190px;
+}
+
+.ai-textbox-h11 {
+    height: 205px;
+}
+
+.ai-textbox-h12 {
+    height: 220px;
+}
+
+.ai-textbox-h13 {
+    height: 235px;
+}
+
+.ai-textbox-h14 {
+    height: 250px;
+}
+
 /* AI Agent Styling End */
 
 /* Explore Videos Styling Start */

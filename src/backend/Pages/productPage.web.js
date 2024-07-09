@@ -12,7 +12,7 @@ export const getProductPageData = webMethod(Permissions.Anyone, async (productSl
 
         const productData = await getProductData(productSlug);
         const calls = await Promise.all([
-            getSuggestedPrompts(),
+            getSuggestedPrompts(productSlug),
             getProductQuestions(productSlug, 0, 10),
             queryReviews(productSlug, 25, 0, true),
             checkIsInFavs(productData._id)
