@@ -24,7 +24,7 @@ $w.onReady(function () {
 
     $w('#searchHistory').onChange(({ target }) => {
         to(`https://www.gheblo.com/search?q=${target.value}`);
-    })
+    });
 });
 
 function addToHistory(value) {

@@ -4,12 +4,12 @@ import { getRouterData, openLightbox } from 'wix-window-frontend';
 import { calculateDiscountPercentage } from 'public/ProductPage/helpers';
 import { searchInProducts } from 'backend/Search/search_products.web';
 import { showNotifier } from 'public/notifier';
-import { debounce, orderBy } from 'lodash';
+import { debounce } from 'lodash';
 import { authentication } from 'wix-members-frontend';
 import { useScope } from 'repeater-scope';
 import { toggleFavoriteProduct } from 'backend/Products/favs.web.js';
 import { _icons_ } from 'public/icons';
-import { filterProducts } from 'public/Filters/filtering';
+import { filterProducts, sortProducts } from 'public/Filters/filtering';
 
 const searchStore = (store) => {
     store.on("@init", () => ({
@@ -28,6 +28,15 @@ const searchStore = (store) => {
     });
 
     store.on("loadMoreProducts", loadMore);
+    store.on("updateResults", ({ sortOption, searchResults, filtersStatus, currentFilters }) => {
+        let products = searchResults;
+        if (filtersStatus) {
+            products = filterProducts(currentFilters, searchResults);
+        }
+
+        products = sortProducts(sortOption, products);
+        setState({ products });
+    });
 }
 
 const store = createStoreon([searchStore]);
@@ -52,81 +61,39 @@ function setupStateEvents() {
         $w('#searchInput').value = searchQuery;
     });
 
-    connect("searchResults", ({ searchResults, filtersStatus, currentFilters, }) => {
-        if (!searchResults) return null;
+    connect("sortOption", () => { dispatch("updateResults"); });
+    connect("searchResults", () => { dispatch("updateResults"); });
+    connect("products", ({ products, totalCount }) => {
+        if (!products) return null;
 
-        if (searchResults.length > 0) {
-            if (filtersStatus) {
-                setState({ noProducts: false });
-                const filteredResults = filterProducts(currentFilters, searchResults);
-                setState({ searchResultsFiltered: filteredResults, filtersStatus: true });
-                $w('#resultsTotal').text = `${searchResults.length} results in total.`;
-            } else {
-                setState({ noProducts: false });
-                $w('#productsRepeater').data = [];
-                $w('#productsRepeater').data = searchResults;
-                dispatch("handleSort");
-                $w('#resultsTotal').text = `${searchResults.length} results in total.`;
-            }
-        } else {
-            setState({ noProducts: true });
-        }
-    });
-
-    connect("noProducts", ({ noProducts }) => {
-        if (noProducts) {
-            $w('#productsRepeater').collapse();
-            $w('#noProductsText').expand();
-        } else {
+        if (products.length > 0) {
             $w('#productsRepeater').expand();
             $w('#noProductsText').collapse();
-        }
-    });
-
-    connect("loadMore", ({ loadMore, totalCount }) => {
-        if (!loadMore) return null;
-
-        if ($w('#productsRepeater').data.length < totalCount) {
-            dispatch("loadMoreProducts");
-        }
-    });
-
-    connect("sortOption", ({ sortOption, searchResults }) => {
-        if (sortOption === "newest") {
-            // Newest Sorting
-            const updated = sortByCreatedDate(searchResults);
-            setState({ searchResults: updated });
-        } else if (sortOption === "plowhigh") {
-            // Price High to Low Sorting
-            const updated = orderBy(searchResults, ['discountedPrice'], ['desc']);
-            setState({ searchResults: updated });
-        } else if (sortOption === "phighlow") {
-            // Price Low to High Sorting
-            const updated = orderBy(searchResults, ['discountedPrice'], ['asc']);
-            setState({ searchResults: updated });
-        }
-    });
-
-    connect("currentFilters", ({ currentFilters, searchResults }) => {
-        if (!currentFilters) {
-            $w('#productsRepeater').data = [];
-            $w('#productsRepeater').data = searchResults;
-            dispatch("handleSort");
+            $w('#productsRepeater').data = products;
+            $w('#resultsTotal').text = `${totalCount} results in total.`;
         } else {
-            const filteredResults = filterProducts(currentFilters, searchResults);
-            setState({ searchResultsFiltered: filteredResults, filtersStatus: true });
+            $w('#productsRepeater').collapse();
+            $w('#noProductsText').expand();
         }
     });
 
-    connect("filtersStatus", ({ filtersStatus, searchResultsFiltered }) => {
-        if (!filtersStatus || !searchResultsFiltered) return null;
+    connect("currentFilters", ({ currentFilters }) => {
+        let hasFilter;
+        if (currentFilters) {
+            for (const [key, filter] of Object.entries(currentFilters)) {
+                if (filter.length > 0 && !hasFilter) hasFilter = true;
+            }
+        }
 
-        $w('#productsRepeater').data = [];
-        $w('#productsRepeater').data = searchResultsFiltered;
-        // Set sorting to newest by default again
-        $w('#sortOptions').value = "newest";
-        dispatch("handleSort");
-        setState({ noProducts: false });
+        if (hasFilter) {
+            setState({ filtersStatus: true });
+            $w('#filterIcon').customClassList.add("has-filters");
+        } else {
+            setState({ filtersStatus: false });
+            $w('#filterIcon').customClassList.remove("has-filters");
+        }
+
+        dispatch("updateResults");
     });
 }
 
@@ -159,7 +126,10 @@ function setEventListeners() {
     });
 
     $w('#loadMoreLine').onViewportEnter(() => {
-        setState({ loadMore: 1 });
+        const { totalCount } = getState();
+        if ($w('#productsRepeater').data.length < totalCount) {
+            dispatch("loadMoreProducts");
+        }
     });
 
     $w('#atfButton').onClick(async (event) => {
@@ -169,7 +139,6 @@ function setEventListeners() {
         }
 
         const { itemData, $item } = useScope(event);
-
         const productId = itemData._id;
         const isInFavs = await toggleFavoriteProduct(productId);
 
@@ -187,23 +156,10 @@ function setEventListeners() {
         setState({ sortOption: selectedOption });
     });
 
-    $w('#filterIcon').onClick(async (event) => {
+    $w('#filterIcon').onClick(async () => {
         const { searchResults } = getState();
         const { currentFilters } = await openLightbox("Filters", searchResults);
         setState({ currentFilters });
-
-        let hasFilter;
-        if (currentFilters) {
-            for (const [key, filter] of Object.entries(currentFilters)) {
-                if (filter.length > 0 && !hasFilter) hasFilter = true;
-            }
-        }
-
-        if (hasFilter) {
-            $w('#filterIcon').customClassList.add("has-filters");
-        } else {
-            $w('#filterIcon').customClassList.remove("has-filters");
-        }
     });
 
     $w('#searchInput').onInput(searchInProductsDebounced);
@@ -228,23 +184,3 @@ const searchInProductsDebounced = debounce(async () => {
         setState({ searchResults, totalCount });
     }
 }, 500);
-
-function parseDateString(dateObject) {
-    const dateStr = dateObject.$date;
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) {
-        return null;
-    }
-    return date;
-}
-
-function sortByCreatedDate(products) {
-    products.forEach(product => {
-        const parsedDate = parseDateString(product.createdDate);
-        if (parsedDate) {
-            product.createdDate = parsedDate;
-        }
-    });
-
-    return orderBy(products, ['createdDate'], ['desc']);
-}

@@ -11,8 +11,9 @@ export const discountOptions = [
     { label: "Has Discount", value: "true" }
 ]
 
-// Filtering
+import { orderBy } from "lodash";
 
+// Helpers
 export function filterProducts(filters, products) {
     let maxPrices = filters.Price ? filters.Price.map(price => parseFloat(price)) : [];
     let filteredProducts = products.filter(product => {
@@ -53,4 +54,39 @@ export function filterProducts(filters, products) {
     });
 
     return filteredProducts;
+}
+
+export function sortProducts(sortOption, products) {
+    if (sortOption) {
+        if (sortOption === "newest") {
+            return sortByCreatedDate(products);
+        } else if (sortOption === "plowhigh") {
+            return orderBy(products, ['discountedPrice'], ['asc']);
+        } else if (sortOption === "phighlow") {
+            return orderBy(products, ['discountedPrice'], ['desc']);
+        }
+    }
+
+    return products;
+}
+
+// Helpers of Helpers
+function parseDateString(dateObject) {
+    const dateStr = dateObject.$date;
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) {
+        return null;
+    }
+    return date;
+}
+
+function sortByCreatedDate(products) {
+    products.forEach(product => {
+        const parsedDate = parseDateString(product.createdDate);
+        if (parsedDate) {
+            product.createdDate = parsedDate;
+        }
+    });
+
+    return orderBy(products, ['createdDate'], ['desc']);
 }
