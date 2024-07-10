@@ -1,18 +1,29 @@
 import weivData from '@exweiv/weiv-data';
 import wixData from 'wix-data';
+import { sleep } from '../Helpers/sleep';
 
 export async function wixStores_onProductCreated(event) {
     try {
         const productId = event._id;
         console.log(`Product Created with id: ${productId}`);
 
+        await sleep(1000);
+
         // Get Created Product Data
-        const [product, collections, variants, inventoryItems] = await Promise.all([
-            wixData.query("Stores/Products").eq("_id", productId).find({ suppressAuth: true, consistentRead: true }),
-            wixData.query("Stores/Products").eq("_id", productId).include("collections").fields("collections", "_id").find({ suppressAuth: true, consistentRead: true }),
+        const [productResult, variants, inventoryItems] = await Promise.all([
+            wixData.query("Stores/Products").eq("_id", productId).include("collections").find({ suppressAuth: true, consistentRead: true, appOptions: { includeVariants: true, includeHiddenProducts: true }, omitTotalCount: false }),
             wixData.query("Stores/Variants").eq("productId", productId).limit(100).find({ suppressAuth: true, consistentRead: true }),
             wixData.query("Stores/InventoryItems").eq("productId", productId).limit(100).find({ suppressAuth: true, consistentRead: true })
         ]);
+
+        if (productResult.items.length === 0) {
+            console.error("Product not found");
+        }
+
+        const product = {
+            ...productResult.items[0],
+            collections: productResult.items[0].collections.map(c => c._id)
+        };
 
         const variantUpdates = variants.items.map((item) => {
             return {
@@ -36,7 +47,7 @@ export async function wixStores_onProductCreated(event) {
 
         // Sync Product Data to MongoDB Cluster
         await Promise.all([
-            await (await weivData.native("Gheblo/WixStoresProducts", true)).updateOne({ "entity._id": productId }, { $set: { entity: { ...product, collections: collections.items[0].collections.map(c => c._id) }  } }, { upsert: true }),
+            await (await weivData.native("Gheblo/WixStoresProducts", true)).updateOne({ "entity._id": productId }, { $set: { entity: product } }, { upsert: true }),
             await (await weivData.native("Gheblo/WixStoresVariants", true)).bulkWrite(variantUpdates, { ordered: false }),
             await (await weivData.native("Gheblo/WixStoresInventoryItems", true)).bulkWrite(inventoryItemsUpdates, { ordered: false })
         ]);
@@ -50,13 +61,23 @@ export async function wixStores_onProductUpdated(event) {
         const productId = event.productId;
         console.log(`Product Updated with id: ${productId}`);
 
+        await sleep(1000);
+
         // Get Updated Product Data
-        const [product, collections, variants, inventoryItems] = await Promise.all([
-            wixData.get("Stores/Products", productId, { suppressAuth: true, consistentRead: true }),
-            wixData.query("Stores/Products").eq("_id", productId).include("collections").fields("collections", "_id").find({ suppressAuth: true, consistentRead: true }),
+        const [productResult, variants, inventoryItems] = await Promise.all([
+            wixData.query("Stores/Products").eq("_id", productId).include("collections").find({ suppressAuth: true, consistentRead: true, appOptions: { includeVariants: true, includeHiddenProducts: true }, omitTotalCount: false }),
             wixData.query("Stores/Variants").eq("productId", productId).limit(100).find({ suppressAuth: true, consistentRead: true }),
             wixData.query("Stores/InventoryItems").eq("productId", productId).limit(100).find({ suppressAuth: true, consistentRead: true })
         ]);
+
+        if (productResult.items.length === 0) {
+            console.error("Product not found");
+        }
+
+        const product = {
+            ...productResult.items[0],
+            collections: productResult.items[0].collections.map(c => c._id)
+        };
 
         const variantUpdates = variants.items.map((item) => {
             return {
@@ -80,7 +101,7 @@ export async function wixStores_onProductUpdated(event) {
 
         // Sync Product Data to MongoDB Cluster
         await Promise.all([
-            (await weivData.native("Gheblo/WixStoresProducts", true)).updateOne({ "entity._id": productId }, { $set: { entity: { ...product, collections: collections.items[0].collections.map(c => c._id) } } }, { upsert: true }),
+            (await weivData.native("Gheblo/WixStoresProducts", true)).updateOne({ "entity._id": productId }, { $set: { entity: product } }, { upsert: true }),
             (await weivData.native("Gheblo/WixStoresVariants", true)).bulkWrite(variantUpdates, { ordered: false }),
             (await weivData.native("Gheblo/WixStoresInventoryItems", true)).bulkWrite(inventoryItemsUpdates, { ordered: false })
         ]);

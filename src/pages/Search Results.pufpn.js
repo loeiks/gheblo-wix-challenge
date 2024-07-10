@@ -95,6 +95,11 @@ function setupStateEvents() {
 
         dispatch("updateResults");
     });
+
+    connect("allProductsLoaded", ({ allProductsLoaded }) => {
+        if (!allProductsLoaded) return null;
+        $w('#allLoaded').expand();
+    });
 }
 
 function setEventListeners() {
@@ -126,9 +131,11 @@ function setEventListeners() {
     });
 
     $w('#loadMoreLine').onViewportEnter(() => {
-        const { totalCount } = getState();
-        if ($w('#productsRepeater').data.length < totalCount) {
+        const { totalCount, searchResults } = getState();
+        if (searchResults < totalCount) {
             dispatch("loadMoreProducts");
+        } else {
+            setState({ allProductsLoaded: true });
         }
     });
 
@@ -166,16 +173,20 @@ function setEventListeners() {
 }
 
 // HELPERS
-const loadMore = debounce(async (state) => {
-    dispatch("notify", { message: "Loading more products..." });
-
-    const skip = $w('#productsRepeater').data.length;
-    const value = $w('#searchInput').value;
-    if (value.length > 1) {
-        const { searchResults, totalCount } = await searchInProducts(value, skip);
-        setState({ searchResults, totalCount });
+async function loadMore() {
+    try {
+        dispatch("notify", { message: "Loading more products..." });
+        const skip = getState().searchResults.length;
+        const value = $w('#searchInput').value;
+        if (value.length > 1) {
+            const { searchResults, totalCount } = await searchInProducts(value, skip);
+            const state = getState();
+            setState({ searchResults: [...state.searchResults, ...searchResults], totalCount });
+        }
+    } catch (err) {
+        console.error(err);
     }
-}, 1000);
+}
 
 const searchInProductsDebounced = debounce(async () => {
     const searchPhrase = $w('#searchInput').value;
