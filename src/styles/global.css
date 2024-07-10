@@ -52,6 +52,10 @@ th {
     border: 1px solid black;
 }
 
+.selected-color-cart {
+    border: 2px solid black;
+}
+
 .in-favs {
     background-color: #bf0033;
     transition: 0.3s ease-in-out;

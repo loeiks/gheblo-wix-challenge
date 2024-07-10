@@ -1,7 +1,7 @@
-import { cart } from "wix-stores-frontend";
 import { authentication } from "wix-members-frontend";
-import { formFactor, openLightbox } from "wix-window-frontend";
+import { openLightbox } from "wix-window-frontend";
 import { to, prefix, url } from "wix-location-frontend";
+import { prefetchPageResources } from 'wix-site-frontend';
 
 $w.onReady(function () {
     const unTouchPages = [
@@ -36,12 +36,10 @@ async function initClusters() {
 
 function eventListeners() {
     if ($w("#shoppingCart").rendered) {
+        prefetchPageResources({ lightboxes: ["CustomCart"] });
+
         $w("#shoppingCart").onClick(() => {
-            if (formFactor != "Mobile") {
-                cart.showMiniCart();
-            } else {
-                to("/cart-page");
-            }
+            openLightbox("CustomCart")
         });
     }
 
