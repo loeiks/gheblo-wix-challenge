@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { isEqual, max } from 'lodash';
 import { product } from "wix-stores-frontend";
 import { showNotifier } from 'public/notifier';
+import { lightbox } from 'wix-window-frontend';
 
 // Setup State Manager
 const cartStore = (store) => {
@@ -249,6 +250,10 @@ function setEventListeners() {
         const checkoutURL = await getCheckoutURL(cartData.cart.checkoutId);
         $w('#createCheckoutBtn').label = "Redirecting...";
         to(checkoutURL);
+    });
+
+    $w('#closeCartIcon').onClick(() => {
+        lightbox.close();
     });
 }
 

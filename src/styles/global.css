@@ -184,8 +184,12 @@ th {
     display: none !important;
 }
 
+.explore-feed-video video {
+    object-fit: cover;
+}
+
 .content-container-collapsed {
-    width: 56.25vh;
+    width: 50vh;
 }
 
 .video-liked {

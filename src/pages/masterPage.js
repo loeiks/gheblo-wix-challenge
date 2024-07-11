@@ -5,7 +5,6 @@ import { prefetchPageResources } from 'wix-site-frontend';
 
 $w.onReady(function () {
     const unTouchPages = [
-        "explore",
         "checkout"
     ];
 
