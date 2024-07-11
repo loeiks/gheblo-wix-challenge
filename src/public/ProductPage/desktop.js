@@ -297,7 +297,7 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
         const { _isProductInFavs, _id, name } = getState();
 
         if (!authentication.loggedIn()) {
-            authentication.promptLogin();
+            dispatch("showLoginScreen");
             return null;
         }
 

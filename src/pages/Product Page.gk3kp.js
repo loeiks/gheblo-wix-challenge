@@ -125,7 +125,7 @@ $w.onReady(async function () {
 async function initPage({ productData, isInFavorite, suggestedPrompts, productQuestions, productReviews, uniqueBuyersCount }) {
     // Reset all repeaters data to empty array to avoid conflicts etc.
     $w('Repeater').data = [];
-    $w('#aiHelperBox').delete();
+    await $w('#aiHelperBox').delete();
 
     // Setup State Events (these events needs to run first because they should react to changes to the state)
     setupStateEvents();

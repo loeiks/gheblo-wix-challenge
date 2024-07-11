@@ -256,7 +256,7 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
         $item('#mobileInfoDescription').html = itemData.description;
     });
 
-    $w('#mobileInfoTitle, #mobileInfoDescription').onClick((event) => {
+    $w('#mobileInfoTitle, #mobileInfoIcon').onClick((event) => {
         const { $item } = useScope(event);
 
         const { collapsedIcon, expandedIcon } = getState()._pageIcons
@@ -305,7 +305,7 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
         const { _isProductInFavs, _id, name } = getState();
 
         if (!authentication.loggedIn()) {
-            authentication.promptLogin();
+            dispatch("showLoginScreen");
             return null;
         }
 
