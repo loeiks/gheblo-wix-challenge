@@ -1,0 +1,119 @@
+<script>
+    // Global variables for the transition element and rendered state
+    let transitionDiv;
+    let rendered = false;
+
+    // Helper function to extract the base URL (excluding query and hash)
+    function getBaseURL(url) {
+        const urlObj = new URL(url);
+        return urlObj.origin + urlObj.pathname;
+    }
+
+    // Store the initial base URL
+    let lastBaseURL = getBaseURL(window.location.href);
+
+    // Function to handle URL changes and trigger a custom event
+    function handleURLChange() {
+        const currentBaseURL = getBaseURL(window.location.href);
+        if (currentBaseURL !== lastBaseURL) {
+            const oldBaseURL = lastBaseURL;
+            lastBaseURL = currentBaseURL;
+
+            // Trigger a custom event when the base URL changes
+            const event = new CustomEvent('urlBaseChange', {
+                detail: {
+                    oldURL: oldBaseURL,
+                    newURL: currentBaseURL
+                }
+            });
+            window.dispatchEvent(event);
+        }
+    }
+
+    // Override history methods to detect URL changes
+    const originalPushState = history.pushState;
+    const originalReplaceState = history.replaceState;
+
+    history.pushState = function (...args) {
+        originalPushState.apply(this, args);
+        handleURLChange();
+    };
+
+    history.replaceState = function (...args) {
+        originalReplaceState.apply(this, args);
+        handleURLChange();
+    };
+
+    // Listen for popstate and hashchange events to detect URL changes
+    window.addEventListener('popstate', handleURLChange);
+    window.addEventListener('hashchange', handleURLChange);
+
+    // Initial URL check
+    handleURLChange();
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // Get the site root and main content elements
+        const siteRoot = document.getElementById("site-root");
+        const main_MF = document.getElementById("main_MF");
+        let prevURL;
+
+        // Register URL change listener
+        window.addEventListener('urlBaseChange', function (event) {
+            const { oldURL, newURL } = event.detail;
+            console.log(`Base URL changed from ${oldURL} to ${newURL}`);
+
+            // Show loading indicator and save the old URL
+            appendElement(main_MF, siteRoot);
+            prevURL = oldURL;
+        });
+
+        // Use MutationObserver to detect changes in SITE_PAGES element
+        const targetNode = document.getElementById('SITE_PAGES');
+        const observer = new MutationObserver(() => {
+            if (prevURL !== window.location.href) {
+                removeElement(main_MF, siteRoot);
+            }
+        });
+
+        // Observe changes in child elements of SITE_PAGES
+        observer.observe(targetNode, { childList: true });
+    });
+
+    // Function to create or retrieve the transition element
+    function getTransitionElement() {
+        if (!transitionDiv) {
+            // Create the transition div and set its style
+            transitionDiv = document.createElement('div');
+            transitionDiv.id = 'transition-div';
+            transitionDiv.style = "display:flex;align-items:center;justify-content:center;height:100vh;";
+
+            // Create the Lottie animation player
+            const transitionComp = document.createElement('dotlottie-player');
+            transitionComp.src = "https://lottie.host/9559c7f4-3e42-4d90-9cd4-2eab9bd4e937/D4iVWJrLzk.lottie";
+            transitionComp.style = "width:100px;height:100px;overflow:hidden;scrolling:no;";
+            transitionComp.setAttribute("loop", "");
+            transitionComp.setAttribute("autoplay", "");
+            transitionDiv.appendChild(transitionComp);
+        }
+        return transitionDiv;
+    }
+
+    // Function to append the transition element and hide the site content
+    function appendElement(main_MF, siteRoot) {
+        siteRoot.style.display = "none";
+        if (!rendered) {
+            main_MF.appendChild(getTransitionElement());
+            rendered = true;
+        } else {
+            transitionDiv.style.display = "flex";
+            transitionDiv.style.height = "100vh";
+        }
+    }
+
+    // Function to remove the transition element and show the site content
+    function removeElement(main_MF, siteRoot) {
+        siteRoot.style.display = "block";
+        transitionDiv.style.display = "none";
+        transitionDiv.style.height = "0px";
+    }
+</script>

@@ -356,6 +356,8 @@ function clearFields() { //@ts-ignore
     $w('#videoTitleInput, #productLinksInVideo').value = null; //@ts-ignore
     $w('#videoTitleInput, #productLinksInVideo').resetValidityIndication();
     $w('#actualUploadInput').reset();
+    $w('#uploadInputStatusText').text = "Click to Upload a Video";
+    setState({ _uploadedVideo: undefined, _uploadedStatus: false });
 }
 
 function validateInputs() {

@@ -8,8 +8,6 @@ import { renderFeed, setupFeedStateEvents } from 'public/Explore/feed';
 // Public Imports
 import { showNotifier } from 'public/notifier';
 import _ from 'lodash';
-// Import Backend
-import { getCheckoutURLForCurrentCart } from 'backend/Explore/checkout.web';
 
 const _likedVideoIcon = "https://static.wixstatic.com/shapes/510eca_533c8b3ec0e14523b415e74e8fa63768.svg";
 const _mutedIcon = "https://static.wixstatic.com/shapes/510eca_414bd1e2b99f4e6bb6a5ac0a4ef0c321.svg";
@@ -64,17 +62,6 @@ const exploreFeedStore = (store) => {
             targetButton.icon = icons._favIcon;
             const newFavs = _.without(_productFavs, productId);
             store.set({ _productFavs: newFavs });
-        }
-    });
-
-    store.on("navigateToCheckout", async () => {
-        store.dispatch("notify", { message: "We are redirecting you to the checkout page, please wait...", timeout: 5000 });
-
-        try {
-            const checkoutURL = await getCheckoutURLForCurrentCart();
-            to(checkoutURL);
-        } catch (err) {
-            store.dispatch("notify", { message: "Is your cart empty? (an error occurred)!", type: "error" });
         }
     });
 }

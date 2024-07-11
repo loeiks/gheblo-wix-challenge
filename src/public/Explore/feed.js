@@ -1,7 +1,7 @@
 import { likeVideo, removeLike } from "backend/Explore/video_actions.web.js";
 import { useScope } from "repeater-scope";
 import { authentication } from "wix-members-frontend";
-import { formFactor, openModal, getBoundingRect, copyToClipboard } from 'wix-window-frontend';
+import { formFactor, openModal, getBoundingRect, copyToClipboard, openLightbox } from 'wix-window-frontend';
 import _ from 'lodash';
 import { cart, product } from "wix-stores-frontend";
 import { addProductToFavs, removeProductFromFavs } from 'backend/Products/favs.web';
@@ -426,14 +426,14 @@ function setEventListeners(state, store) {
         $item(`#${event.target.id}`).value = [latestSelectedOption];
     });
 
-    $w('#goToCheckout').onClick(() => {
-        dispatch("navigateToCheckout");
+    $w('#viewMyCart').onClick(() => {
+        openLightbox("CustomCart");
     });
 
     $w('#shareVideoURL').onClick((event) => {
         const { itemData } = useScope(event);
         copyToClipboard(`https://www.gheblo.com/explore/${itemData._id}`);
-        dispatch("notify", { message: "Video URL Copied to Clipboard", type: "success" });
+        dispatch("notify", { message: "Video URL Copied to Clipboard" });
     });
 
     $w('#videoToggleHitBox').onClick((event) => {
