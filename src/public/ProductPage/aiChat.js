@@ -18,6 +18,10 @@ export function renderAiChat(state, store) {
  * @returns {void} Returns nothing it's just a void 
  */
 function setupInitView(state, { dispatch, setState, getState, connect }) {
+    marked.setOptions({
+        breaks: true
+    });
+
     $w('#aiChatRepeater').hide();
     $w('#aiQuestionSuggestions').options = getState()._aiSuggestedPrompts;
 }

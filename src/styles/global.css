@@ -252,3 +252,19 @@ th {
 .has-filters:hover {
     background-color: rgba(0, 0, 0, 0.8) !important;
 }
+
+.header-search-logged-in {
+    margin-right: 92px;
+}
+
+.header-search-icon-logged-in {
+    margin-right: 104px;
+}
+
+.header-search {
+    margin-right: 48px;
+}
+
+.header-search-icon {
+    margin-right: 60px;
+}
