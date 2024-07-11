@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { isEqual, keys, isEmpty } from 'lodash';
 import { cart } from 'wix-stores-frontend';
 import { addProductToFavs, removeProductFromFavs } from 'backend/Products/favs.web';
+import { authentication } from 'wix-members-frontend';
 
 /**
  * @function
@@ -294,6 +295,11 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
     // Add to wishlist/favs button
     $w('#atfButton').onClick(async () => {
         const { _isProductInFavs, _id, name } = getState();
+
+        if (!authentication.loggedIn()) {
+            authentication.promptLogin();
+            return null;
+        }
 
         try {
             if (!_isProductInFavs) {

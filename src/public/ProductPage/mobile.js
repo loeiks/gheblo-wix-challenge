@@ -5,6 +5,7 @@ import { isEmpty, isEqual, keys } from 'lodash';
 import { cart } from 'wix-stores-frontend';
 import { openLightbox } from 'wix-window-frontend';
 import { addProductToFavs, removeProductFromFavs } from 'backend/Products/favs.web';
+import { authentication } from 'wix-members-frontend';
 
 /**
  * @function
@@ -82,7 +83,7 @@ export function setupMobileStateEvents(state, { dispatch, setState, getState, co
         } else {
             // Has discount
             $w('#mobileFormattedPrice').text = `${discountedPrice}€`;
-            $w('#mobileDiscount').text = `-%${calculateDiscountPercentage(price, discountedPrice).toFixed(0)}`;
+            $w('#mobileDiscount').text = `-%${calculateDiscountPercentage(price, discountedPrice)}`;
             $w('#mobileUndiscountedPrice').text = `${price}€`;
             $w('#mobileDiscount, #mobileUndiscountedPrice').expand();
         }
@@ -302,6 +303,11 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
     // Add to wishlist/favs button
     $w('#mobileAtfButton').onClick(async () => {
         const { _isProductInFavs, _id, name } = getState();
+
+        if (!authentication.loggedIn()) {
+            authentication.promptLogin();
+            return null;
+        }
 
         try {
             if (!_isProductInFavs) {
