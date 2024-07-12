@@ -137,12 +137,12 @@ function setEventListeners() {
         if (event.target.id === "editQuestion") {
             to(`https://www.gheblo.com/questions/${slug}/${itemData._id}?edit=true`);
         } else {
-            to(`https://www.gheblo.com/questions/${slug}/${itemData._id}?editReply=${itemData._id}`);
+            to(`https://www.gheblo.com/questions/${slug}/${itemData.questionId}?editReply=${itemData._id}`);
         }
     });
 
     //@ts-ignore
-    $w('#replyItem, #questionItem').onClick((event) => {
+    $w('#replyText, #questionText').onClick((event) => {
         const { itemData } = useScope(event);
         const { slug } = itemData.product[0].entity;
         to(`https://www.gheblo.com/questions/${slug}/${itemData._id}`);

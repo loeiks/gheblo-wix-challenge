@@ -2,6 +2,7 @@ import moment from "moment";
 import { useScope } from "repeater-scope";
 import { formFactor, openLightbox } from 'wix-window-frontend';
 import { v4 as uuidv4 } from 'uuid';
+import { _icons_ } from '../icons';
 
 /**
  * @param {{[key: string]: any}} state 
@@ -199,7 +200,7 @@ function setupReviewMemberData(itemData, {
     ratingElement,
     reviewCommentElement
 }) {
-    profilePhotoElement.src = itemData.memberData.profile.profilePhoto.url;
+    profilePhotoElement.src = itemData.memberData.profile.profilePhoto?.url || _icons_.profilePhotoNull;
     usernameDateElement.html = `<p class="font_7">${itemData.memberData.profile.nickname} | <span style="color: #5d5e61">${moment(itemData._updatedDate).format('DD MMM YYYY')}</span></p>`;
     ratingElement.rating = itemData.content.rating;
     reviewCommentElement.text = itemData.content.body;

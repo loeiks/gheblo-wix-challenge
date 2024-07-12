@@ -50,16 +50,34 @@ async function initPage(routerData) {
         product
     } = routerData;
 
-    if (authentication.loggedIn()) {
+    const loggedIn = authentication.loggedIn();
+    setState({ _isLoggedIn: loggedIn });
+
+    if (loggedIn) {
         setState({ _currentMember: await currentMember.getMember() });
     }
 
     setState({ question: question[0], product, replies: question[0].replies });
 
-    if (query.edit) {
-        setState({ _currentData: getState().question });
-        setState({ _currentDataType: "question" });
-        setState({ _currentState: "editor" });
+    if (query.edit && loggedIn) {
+        const { question, _currentMember } = getState();
+
+        if (question._owner === _currentMember._id) {
+            setState({ _currentData: getState().question });
+            setState({ _currentDataType: "question" });
+            setState({ _currentState: "editor" });
+        }
+    }
+
+    if (query.editReply && loggedIn) {
+        const { replies, _currentMember } = getState();
+        const reply = replies.find(reply => reply._id === query.editReply);
+
+        if (reply._owner === _currentMember._id) {
+            setState({ _currentData: reply });
+            setState({ _currentDataType: "reply" });
+            setState({ _currentState: "editor" });
+        }
     }
 }
 
@@ -148,8 +166,6 @@ function setupStateEvents() {
                 $w('#editQuestion').collapse();
                 $w('#deleteQuestion').collapse();
             }
-
-            $w('#questionTitle').text = `${profile.nickname}'s Question`;
         }
     });
 
@@ -240,8 +256,12 @@ function setEventListeners() {
     });
 
     //@ts-ignore
-    $w('#backToQuestion, #questionTitle').onClick(() => {
+    $w('#backToQuestion, #backToQuestions').onClick(() => {
         to(`https://www.gheblo.com/questions/${path[0]}`);
+    });
+
+    $w('#backToProductIcon').onClick(() => {
+        to(`https://www.gheblo.com/product-page/${path[0]}`);
     });
 }
 
@@ -286,7 +306,13 @@ async function handleUpdate() {
 }
 
 async function handleReply() {
-    const { question, product, replies } = getState();
+    const { question, product, _isLoggedIn } = getState();
+
+    if (!_isLoggedIn) {
+        authentication.promptLogin({ modal: true, mode: "login" });
+        return null;
+    }
+
     const isValid = validateInput($w('#memberReplyTextBox'));
     if (!isValid) return null;
 
