@@ -3,7 +3,7 @@ import { currentUser } from 'wix-users-backend';
 import weivData, { convertId } from '@exweiv/weiv-data';
 import { recursivelyConvertIds } from 'backend/Helpers/recursive_id_converter';
 
-export const queryVideos = webMethod(Permissions.Anyone, async (skipCount, notIncludedVideoId) => {
+export const queryVideos = webMethod(Permissions.Anyone, async (skipCount, notIncludedVideoId, limit = 0) => {
     try {
         if (currentUser.loggedIn) {
             const memberId = currentUser.id;
@@ -43,7 +43,7 @@ export const queryVideos = webMethod(Permissions.Anyone, async (skipCount, notIn
             }
 
             const aggregateResult = await aggregationPipeline.skip(skipCount || 0)
-                .limit(15)
+                .limit(limit || 15)
                 .stage(
                     {
                         $lookup: {
@@ -98,6 +98,7 @@ export const queryVideos = webMethod(Permissions.Anyone, async (skipCount, notIn
         } else {
             const randomVideos = await weivData.query("Gheblo/ShortVideos")
                 .skip(skipCount || 0)
+                .limit(limit || 15)
                 .include(
                     {
                         collectionName: "WixStoresProducts",

@@ -1,0 +1,70 @@
+{
+    "locations": [
+        {
+            "address": "Kuzguncuk 34674 Üsküdar/İstanbul Türkiye",
+            "location": {
+                "longitude": 29.0267882,
+                "latitude": 41.0322434
+            },
+            "icon": "https://static.parastorage.com/services/santa-resources/resources/editor/designPanel/panelTypes/default_pin_icon.png",
+            "title": "Üsküdar Drop off Point",
+            "linkTitle": "",
+            "description": ""
+        },
+        {
+            "address": "İcadiye Selamiali 34664 Üsküdar/İstanbul Türkiye",
+            "location": {
+                "longitude": 29.0326,
+                "latitude": 41.0273
+            },
+            "icon": "https://static.parastorage.com/services/santa-resources/resources/editor/designPanel/panelTypes/default_pin_icon.png",
+            "title": "İcadiye Drop off Point",
+            "linkTitle": "",
+            "description": ""
+        },
+        {
+            "address": "Selamsız Selamiali 34664 Üsküdar/İstanbul Türkiye",
+            "location": {
+                "longitude": 29.0220876,
+                "latitude": 41.0234235
+            },
+            "icon": "https://static.parastorage.com/services/santa-resources/resources/editor/designPanel/panelTypes/default_pin_icon.png",
+            "title": "Selamsiz Drop off Point",
+            "linkTitle": "",
+            "description": ""
+        },
+        {
+            "address": "Kuzguncuk, 34668 Üsküdar/İstanbul, Türkiye",
+            "location": {
+                "longitude": 29.0146203,
+                "latitude": 41.0191334
+            },
+            "icon": "https://static.parastorage.com/services/santa-resources/resources/editor/designPanel/panelTypes/default_pin_icon.png",
+            "title": "Üsküdar Sea Coast Drop off Point",
+            "linkTitle": "",
+            "description": ""
+        },
+        {
+            "address": "Sultantepe, Kaftan Sok., 34674 Üsküdar/İstanbul, Türkiye",
+            "location": {
+                "longitude": 29.0186279,
+                "latitude": 41.0285018
+            },
+            "icon": "https://static.parastorage.com/services/santa-resources/resources/editor/designPanel/panelTypes/default_pin_icon.png",
+            "title": "Kaftan Street Drop off Point",
+            "linkTitle": "",
+            "description": ""
+        },
+        {
+            "address": "Selimiye, 34668 Üsküdar/İstanbul, Türkiye",
+            "location": {
+                "longitude": 29.0128658,
+                "latitude": 41.0098915
+            },
+            "icon": "https://static.parastorage.com/services/santa-resources/resources/editor/designPanel/panelTypes/default_pin_icon.png",
+            "title": "Haydarpaşa Port Drop off Point",
+            "linkTitle": "",
+            "description": ""
+        }
+    ]
+}

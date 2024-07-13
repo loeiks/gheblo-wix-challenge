@@ -1,6 +1,8 @@
 import { currentCart, checkout } from "wix-ecom-backend";
 import { webMethod, Permissions } from 'wix-web-module';
 import weivData from '@exweiv/weiv-data';
+import { currentUser } from "wix-users-backend";
+import { currentMember } from 'wix-members-backend';
 
 export const getCurrentCart = webMethod(Permissions.Anyone, async () => {
     try {
@@ -17,7 +19,7 @@ export const getCurrentCart = webMethod(Permissions.Anyone, async () => {
             }
         };
     } catch (err) {
-        throw new Error(`Error while fetching current cart: ${err}`);
+        throw new Error(`Error while getting current cart (cart is not created yet!): ${err}`);
     }
 });
 
@@ -71,9 +73,33 @@ export const getVariantSockQuantity = webMethod(Permissions.Anyone, async (choic
     }
 });
 
-export const getCheckoutURL = webMethod(Permissions.Anyone, async (checkoutId) => {
+export const getCheckoutURL = webMethod(Permissions.Anyone, async () => {
     try {
-        const checkoutURL = await checkout.getCheckoutUrl(checkoutId);
+        /**@type {import("wix-ecom-backend").currentCart.CreateCheckoutFromCurrentCartOptions} */
+        const checkoutFromCurrentCartOptions = { channelType: "WEB" }
+
+        if (currentUser.loggedIn) {
+            const { loginEmail, contactDetails } = await currentMember.getMember({ fieldsets: ["FULL"] });
+            const { addresses } = contactDetails;
+
+            if (addresses.length > 0) {
+                const { addressLine, addressLine2, city, country, postalCode, streetAddress, subdivision } = addresses[0]
+                checkoutFromCurrentCartOptions.billingAddress = {
+                    addressLine1: addressLine,
+                    addressLine2,
+                    city,
+                    country,
+                    postalCode,
+                    streetAddress,
+                    subdivision
+                }
+            }
+
+            checkoutFromCurrentCartOptions.email = loginEmail;
+        }
+
+        const checkoutData = await currentCart.createCheckoutFromCurrentCart(checkoutFromCurrentCartOptions);
+        const checkoutURL = await checkout.getCheckoutUrl(checkoutData.checkoutId);
         return checkoutURL.checkoutUrl;
     } catch (err) {
         throw new Error(`Error while fetching checkout URL from current cart: ${err}`);

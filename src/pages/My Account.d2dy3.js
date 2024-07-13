@@ -90,20 +90,23 @@ function setEventListeners() {
 
         $item('#orderDate').text = `${moment(order._createdDate).format("DD MMM YYYY")}`;
 
+        // Handle Order Status
+        const orderStatus = getStatusByOrderData(order.fulfillmentStatus, order.paymentStatus, order.status);
         $item('#orderStatusText').customClassList.remove("status-warning");
-        if (order.fulfillmentStatus === "FULFILLED") {
-            $item('#orderStatusText').text = "Delivered";
+        $item('#orderStatusText').text = orderStatus;
+        if (orderStatus === "Delivered") {
             $item('#orderStatus').value = 4;
-        } else if (order.fulfillmentStatus === "PARTIALLY_FULFILLED") {
-            $item('#orderStatusText').text = "Dispatched";
+        } else if (orderStatus === "Dispatched") {
             $item('#orderStatus').value = 3;
-        } else if (order.fulfillmentStatus === "NOT_FULFILLED") {
-            $item('#orderStatusText').text = "In Progress";
+        } else if (orderStatus === "In Progress") {
             $item('#orderStatus').value = 2;
-        } else {
-            $item('#orderStatusText').customClassList.add("status-warning");
-            $item('#orderStatusText').text = "Pending";
+        } else if (orderStatus === "Cancelled") {
+            $item('#orderStatusText').customClassList.add("status-cancelled");
+            $item('#orderStatus').value = 4;
+        } else if (orderStatus === "Pending") {
             $item('#orderStatus').value = 1;
+        } else {
+            $item('#orderStatus').value = 4;
         }
     });
 
@@ -111,4 +114,50 @@ function setEventListeners() {
         const { $item, itemData } = useScope(event);
         to(`https://www.gheblo.com/account/orders?orderId=${itemData._id}`);
     });
+}
+
+function getStatusByOrderData(fulfillmentStatus, paymentStatus, status) {
+    if (status === "CANCELED") {
+        // Cancelled
+        return "Cancelled";
+    }
+
+    if (paymentStatus === "PAID") {
+        // Normal
+        switch (fulfillmentStatus) {
+            case "NOT_FULFILLED": {
+                return "In Progress";
+            }
+            case "PARTIALLY_FULFILLED": {
+                return "Dispatched";
+            }
+            case "FULFILLED": {
+                return "Delivered";
+            }
+            default: {
+                return "Pending";
+            }
+        }
+    } else if (paymentStatus === "FULLY_REFUNDED") {
+        // Refunded
+        return "Fully Refunded";
+    } else if (paymentStatus === "PARTIALLY_REFUNDED") {
+        // Some Refunds
+        return "Partially Refunded";
+    }
+
+    switch (fulfillmentStatus) {
+        case "NOT_FULFILLED": {
+            return "In Progress";
+        }
+        case "PARTIALLY_FULFILLED": {
+            return "Dispatched";
+        }
+        case "FULFILLED": {
+            return "Delivered";
+        }
+        default: {
+            return "Pending";
+        }
+    }
 }

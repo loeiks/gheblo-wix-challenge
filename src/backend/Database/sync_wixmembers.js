@@ -7,11 +7,13 @@ const profileCollectionName = "Gheblo/WixMembersProfileData";
 
 export async function wixMembers_onMemberUpdated(event) {
     try {
-        console.log("Member Updated")
+        const memberId = event.entity._id;
+        console.log("Member Updated", memberId)
         const elevatedGetMember = wixAuth.elevate(members.getMember);
-        const memberDataFull = await elevatedGetMember(event.entity._id, { fieldsets: ["FULL"] });
-        await (await weivData.native(fullCollectionName, true)).updateOne({ "entity._id": event.entity._id }, { $set: { entity: memberDataFull } }, { upsert: true });
-        await (await weivData.native(profileCollectionName, true)).updateOne({ "entity._id": event.entity._id }, { $set: { entity: getPublicData(memberDataFull) } }, { upsert: true });
+        const memberDataFull = await elevatedGetMember(memberId, { fieldsets: ["FULL"] });
+
+        await (await weivData.native(fullCollectionName, true)).updateOne({ "entity._id": memberId }, { $set: { entity: memberDataFull } }, { upsert: true });
+        await (await weivData.native(profileCollectionName, true)).updateOne({ "entity._id": memberId }, { $set: { entity: getPublicData(memberDataFull) } }, { upsert: true });
     } catch (err) {
         throw new Error(`Error when updating member data via events, details: ${err}`);
     }
@@ -19,9 +21,10 @@ export async function wixMembers_onMemberUpdated(event) {
 
 export async function wixMembers_onMemberCreated(event) {
     try {
-        console.log("Member Created")
+        const memberId = event.entity._id;
+        console.log("Member Created", memberId)
         const elevatedGetMember = wixAuth.elevate(members.getMember);
-        const memberDataFull = await elevatedGetMember(event.entity._id, { fieldsets: ["FULL", "PUBLIC"] });
+        const memberDataFull = await elevatedGetMember(memberId, { fieldsets: ["FULL", "PUBLIC"] });
         await (await weivData.native(fullCollectionName, true)).insertOne({ entity: memberDataFull });
         await (await weivData.native(profileCollectionName, true)).insertOne({ entity: getPublicData(memberDataFull) });
     } catch (err) {
@@ -31,9 +34,10 @@ export async function wixMembers_onMemberCreated(event) {
 
 export async function wixMembers_onMemberDeleted(event) {
     try {
-        console.log("Member Deleted")
-        await (await weivData.native(fullCollectionName, true)).deleteOne({ "entity._id": event.metadata.entityId });
-        await (await weivData.native(profileCollectionName, true)).deleteOne({ "entity._id": event.metadata.entityId });
+        const memberId = event.metadata.entityId;
+        console.log("Member Deleted", memberId)
+        await (await weivData.native(fullCollectionName, true)).deleteOne({ "entity._id": memberId });
+        await (await weivData.native(profileCollectionName, true)).deleteOne({ "entity._id": memberId });
     } catch (err) {
         throw new Error(`Error when creating member data via events, details: ${err}`);
     }

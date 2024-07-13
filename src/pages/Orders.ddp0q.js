@@ -4,20 +4,26 @@ import { query, to } from 'wix-location-frontend';
 // NPM Imports
 import { createStoreon } from 'storeon-velo';
 import { useScope } from 'repeater-scope';
-import { remove } from 'lodash';
 import moment from 'moment';
+import axios from 'axios';
 // Public Imports
 import { setupHeader } from 'public/MemberPages/memberHeaders';
 import { showNotifier } from 'public/notifier';
-import { highLightCurrentTab } from 'public/MemberPages/memberMenu';
+import { highLightCurrentTab } from 'public/MemberPages/memberMenu'; //@ts-ignore
+import { locations } from 'public/MemberPages/drop-off-locations.json';
 // Backend Imports
-import { cancelOrder } from 'backend/Members/member_orders.web';
+import { cancelOrder, createReturnRequest } from 'backend/Members/member_orders.web';
 
 /**
  * Setup Store for Explore Feed Page
  * @param {import('storeon-velo').StoreonStore} store 
  */
 const myAccountStore = (store) => {
+    store.on("@init", () => ({
+        returnType: "dropoff",
+        _returningProductIds: []
+    }))
+
     store.on("@changed", (state, change) => {
         if (query.dev) {
             console.log(change);
@@ -35,12 +41,13 @@ const myAccountStore = (store) => {
             _createdDate,
             fulfillmentStatus, paymentStatus, status,
             priceSummary,
-            balanceSummary
+            balanceSummary,
+            returnRequest
         } = _currentOrder;
 
-        $w('#currentOrderNoAndDate').text = `Order No: ${number} · ${moment(_createdDate).format("DD/MM/YYYY HH:MM")}`;
+        $w('#currentOrderNoAndDate').text = `Order No: ${number} · ${moment(_createdDate["$date"]).format("DD/MM/YYYY HH:mm")}`;
 
-        const orderStatus = getStatusByOrderData(fulfillmentStatus, paymentStatus, status);
+        const orderStatus = getStatusByOrderData(fulfillmentStatus, paymentStatus, status, returnRequest);
         $w('#currentOrderStatus').text = orderStatus;
         if (orderStatus === "Cancelled") {
             $w('#currentOrderStatus').customClassList.add("cancelled-order-status-text");
@@ -104,6 +111,9 @@ async function initPage(routerData) {
         ordersResponse: orders,
         orders: orders.items.map(order => order.entity)
     });
+
+    //@ts-ignore
+    $w('#locationMap').markers = locations;
 }
 
 function setupStateEvents() {
@@ -135,10 +145,19 @@ function setupStateEvents() {
     });
 
     connect("_currentOrder", ({ _currentOrder }) => {
-        if (_currentOrder) {
-            $w('#lineItemsRepeater').data = _currentOrder.lineItems;
-            dispatch("renderCurrentOrder");
-        }
+        if (!_currentOrder) return null;
+
+        // Normal Items
+        $w('#lineItemsRepeater').data = [{ _id: "1" }];
+        $w('#lineItemsRepeater').data = _currentOrder.lineItems;
+
+        // Return Items
+        const returnItems = _currentOrder?.returnRequest?.returningProductIds || [];
+        $w('#returnProductsRepeater').data = [{ _id: "1" }];
+        $w('#returnProductsRepeater').data = _currentOrder.lineItems.filter(item => returnItems.includes(item.catalogReference.catalogItemId));
+
+        // Render View
+        dispatch("renderCurrentOrder");
     });
 
     connect("_currentState", ({ _currentState }) => {
@@ -159,51 +178,129 @@ function setupStateEvents() {
                     $w('#stateBox').changeState("order");
                     break;
                 }
+                case "returnOrder": {
+                    $w('#title').text = "Return Request";
+                    $w('#stateBox').changeState("returnOrder");
+                    break;
+                }
                 default: {
                     break;
                 }
             }
         }
     });
+
+    connect("returnType", async ({ returnType, _currentOrder, _orderAddress }) => {
+        if (!returnType) return null;
+        if (!_currentOrder) return null;
+
+        const orderAddress = _currentOrder.billingInfo.address;
+        console.log(orderAddress);
+
+        if (returnType === "dropoff") {
+            //@ts-ignore
+            $w('#locationMap').markers = locations;
+            $w('#selectedAddressDetails').text = "Please select a drop-off location from the map below:";
+        } else {
+            const {
+                addressLine1,
+                addressLine2,
+                city,
+                country,
+                postalCode
+            } = orderAddress;
+
+            const address = `${addressLine1}, ${addressLine2 ? addressLine2 : ""} ${postalCode} ${city}/${country}`;
+
+            let currentAddress = _orderAddress;
+            if (!_orderAddress) {
+                const response = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+                if (response.data.length > 0) {
+                    setState({ _orderAddress: response.data[0] });
+                    currentAddress = response.data[0];
+                }
+            }
+
+            //@ts-ignore
+            $w('#locationMap').markers = [{
+                ...locations[0],
+                address,
+                location: {
+                    longitude: parseFloat(currentAddress.lon),
+                    latitude: parseFloat(currentAddress.lat)
+                },
+                title: "Home"
+            }];
+
+            $w('#selectedAddressDetails').text = `We will collect products (only the ones that will be returned) from your order address: ${address}`;
+        }
+    });
 }
 
 function setEventListeners() {
     $w('#ordersRepeater').onItemReady(($item, itemData, index) => {
-        const { fulfillmentStatus, paymentStatus, status } = itemData;
+        const { fulfillmentStatus, paymentStatus, status, returnRequest } = itemData;
 
-        const orderStatus = getStatusByOrderData(fulfillmentStatus, paymentStatus, status);
+        const orderStatus = getStatusByOrderData(fulfillmentStatus, paymentStatus, status, returnRequest);
         $item('#orderStatus').text = orderStatus
         if (orderStatus === "Cancelled") {
             $item('#orderStatus').customClassList.add("cancelled-order-status-text");
         }
 
+        // Order items and total data
         const orderItems = itemData.lineItems.slice(0, 3).map(l => l.productName.original).join(", ");
-        $item('#orderItems').text = `${orderItems}${itemData.lineItems.length > 3 ? `and ${itemData.lineItems.length - 3} more...` : ""}`;
-        $item('#orderDate').text = `${moment(itemData._createdDate).format("DD MMM YYYY")}`;
+        const totalItems = calculateTotalItemCount(itemData.lineItems);
+        $item('#orderItems').text = `(${totalItems} Items in Total) | ${orderItems}${totalItems > 3 ? `and ${totalItems - 3} more...` : ""}`;
+
+        // Order date
+        $item('#orderDate').text = `${moment(itemData._createdDate["$date"]).format("DD MMM YYYY HH:mm")}`;
 
         // Set first product image
         $item('#orderImage').src = getImageURL(itemData.lineItems[0].image);
     });
 
-    $w('#orderDetailsButton').onClick((event) => {
+    //@ts-ignore
+    $w('#orderDetailsButton, #orderItem').onClick((event) => {
         const { itemData } = useScope(event);
         setState({ _currentOrder: itemData });
         setState({ _currentState: "order" });
     });
 
     $w('#lineItemsRepeater').onItemReady(($item, itemData, index) => {
+        if (itemData._id === "1") return null;
+
+        const { _currentOrder } = getState();
         $item('#lineItemImage').src = getImageURL(itemData.image);
-        $item('#lineItemName').text = itemData.productName.original;
-        $item('#lineItemPrice').text = itemData.price.formattedAmount;
+
+        const { returnRequest } = _currentOrder;
+
+        if (returnRequest) {
+            const isInReturn = returnRequest.returningProductIds.includes(itemData.catalogReference.catalogItemId);
+            const returnText = isInReturn ? "In Return Request " : "";
+
+            if (itemData.quantity > 1) {
+                $item('#lineItemName').html = `<p>${itemData.productName.original} <span style="color:#7c5800;">${returnText}</span> <span style="color:#5d5e61;">${itemData.quantity}x</span></p>`;
+            } else {
+                $item('#lineItemName').html = `<p>${itemData.productName.original} <span style="color:#7c5800;">${returnText}</span></p>`;
+            }
+        } else {
+            if (itemData.quantity > 1) {
+                $item('#lineItemName').html = `<p>${itemData.productName.original} <span style="color:#5d5e61;">${itemData.quantity}x</span></p>`;
+            } else {
+                $item('#lineItemName').text = itemData.productName.original;
+            }
+        }
+
+        $item('#lineItemPrice').text = itemData.lineItemPrice.formattedAmount;
     });
 
-    //@ts-ignore
-    $w('#backToOrdersButton, #currentOrderNoAndDate').onClick((event) => {
+    $w('#backToOrdersButton').onClick(() => {
         setState({ _currentState: "orders" });
     });
 
     // Action Buttons
-    $w('#cancelOrderButton').onClick(() => { setState({ _currentState: "cancelOrder" }); })
+    $w('#cancelOrderButton').onClick(() => { setState({ _currentState: "cancelOrder" }); });
+    $w('#backToOrdersButtonInReturn').onClick(() => { setState({ _currentState: "orders" }); });
 
     $w('#contactSupportButton').onClick(() => {
         contactSupport();
@@ -212,10 +309,6 @@ function setEventListeners() {
     $w('#contactSupportForOrderButton').onClick((event) => {
         const { itemData } = useScope(event);
         setState({ _currentOrder: itemData });
-        contactSupport();
-    })
-
-    $w('#returnOrderButton').onClick((event) => {
         contactSupport();
     });
 
@@ -237,19 +330,113 @@ function setEventListeners() {
         $w('#startCancelOrder').enable();
     });
 
-    $w('#title').onClick(() => setState({ _currentState: "orders" }));
+    $w('#returnOrderButton').onClick(() => {
+        setState({ _currentState: "returnOrder" });
+    });
+
+    $w('#returnTypeDropdown').onChange((event) => {
+        setState({ returnType: event.target.value });
+    });
+
+    //@ts-ignore
+    $w('#locationMap').onMarkerClicked((event) => {
+        const { address, title } = event;
+        const href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+        $w('#selectedAddressDetails').html = `<p>You will drop off the selected product at the selected drop off point, here: <span style="color:black;">${title} | <a style="color:#006a63;" href="${href}">${address}</a></span></p>`;
+        setState({ _selectedDropOffPoint: title });
+    });
+
+    $w('#returnProductsRepeater').onItemReady(($item, itemData, index) => {
+        $item('#productImageForReturn').src = getImageURL(itemData.image);
+
+        if (itemData.quantity > 1) {
+            $item('#productNameForReturn').html = `<p>${itemData.productName.original} <span style="color:#5d5e61;">${itemData.quantity}x</span></p>`;
+        } else {
+            $item('#productNameForReturn').text = itemData.productName.original;
+        }
+    });
+
+    $w('#returnCheckbox').onClick((event) => {
+        const { itemData, $item } = useScope(event);
+        const { _returningProductIds } = getState();
+
+        if ($item("#returnCheckbox").checked) {
+            setState({ _returningProductIds: [..._returningProductIds, itemData.catalogReference.catalogItemId] });
+        } else {
+            const updatedIds = _returningProductIds.filter(id => id !== itemData.catalogReference.catalogItemId);
+            setState({ _returningProductIds: updatedIds });
+        }
+    });
+
+    $w('#startReturnProcessBtn').onClick(async () => {
+        try {
+            const isValid = validateReturnRequest();
+            if (!isValid) return null;
+
+            // Returning products because it's valid
+            $w('#startReturnProcessBtn').disable();
+            $w('#startReturnProcessBtn').label = "Creating Return Request...";
+
+            const { _currentOrder, _returningProductIds, _selectedDropOffPoint, returnType, _orderAddress } = getState();
+            await createReturnRequest(_currentOrder._id, {
+                returningProductIds: _returningProductIds,
+                selectedDropoffPoint: _selectedDropOffPoint,
+                returnAddress: _orderAddress,
+                returnType,
+            });
+
+            dispatch("notify", { message: "Return request has been created successfully", type: "success" });
+
+            if (returnType === "dropoff") {
+                to("https://gheblo.com/support/article/how-to-return-products-with-dropoff-points/");
+            } else {
+                to(`https://gheblo.com/support/article/how-to-return-products-with-home-collection/`);
+            }
+
+            setState({ _returningProductIds: undefined, _selectedDropOffPoint: undefined, _orderAddress: undefined, returnType: "dropoff" });
+            $w('#returnTypeDropdown').value = "dropoff";
+
+            $w('#startReturnProcessBtn').enable();
+            $w('#startReturnProcessBtn').label = "Start Return & Refund Process";
+        } catch (err) {
+            dispatch("notify", { message: "We couldn't create your return request!", type: "error" });
+            console.error("Failed to create return request. Please try again later.", err);
+        }
+    });
 }
 
 // HELPER FUNCTIONS
+function getStatusByOrderData(fulfillmentStatus, paymentStatus, status, returnRequest) {
+    function getStatus() {
+        if (status === "CANCELED") {
+            // Cancelled
+            return "Cancelled";
+        }
 
-function getStatusByOrderData(fulfillmentStatus, paymentStatus, status) {
-    if (status === "CANCELED") {
-        // Cancelled
-        return "Cancelled";
-    }
+        if (paymentStatus === "PAID") {
+            // Normal
+            switch (fulfillmentStatus) {
+                case "NOT_FULFILLED": {
+                    return "In Progress";
+                }
+                case "PARTIALLY_FULFILLED": {
+                    return "Dispatched";
+                }
+                case "FULFILLED": {
+                    return "Delivered";
+                }
+                default: {
+                    return "Pending";
+                }
+            }
+        } else if (paymentStatus === "FULLY_REFUNDED") {
+            // Refunded
+            return "Fully Refunded";
+        } else if (paymentStatus === "PARTIALLY_REFUNDED") {
+            // Some Refunds
+            return "Partially Refunded";
+        }
 
-    if (paymentStatus === "PAID") {
-        // Normal
         switch (fulfillmentStatus) {
             case "NOT_FULFILLED": {
                 return "In Progress";
@@ -264,27 +451,26 @@ function getStatusByOrderData(fulfillmentStatus, paymentStatus, status) {
                 return "Pending";
             }
         }
-    } else if (paymentStatus === "FULLY_REFUNDED") {
-        // Refunded
-        return "Fully Refunded";
-    } else if (paymentStatus === "PARTIALLY_REFUNDED") {
-        // Some Refunds
-        return "Partially Refunded";
     }
 
-    switch (fulfillmentStatus) {
-        case "NOT_FULFILLED": {
-            return "In Progress";
+    const statusText = getStatus();
+    if (statusText === "Delivered" && returnRequest) {
+        switch (returnRequest.returnStatus) {
+            case "PENDING": {
+                return `${statusText} - Return Request Pending`;
+            }
+            case "PARCEL_RECEIVED": {
+                return `${statusText} - Return Request Parcels Received`;
+            }
+            case "RETURNED": {
+                return `${statusText} - Return Request Completed`;
+            }
+            default: {
+                return statusText;
+            }
         }
-        case "PARTIALLY_FULFILLED": {
-            return "Dispatched";
-        }
-        case "FULFILLED": {
-            return "Delivered";
-        }
-        default: {
-            return "Pending";
-        }
+    } else {
+        return statusText;
     }
 }
 
@@ -309,4 +495,33 @@ function getImageURL(image) {
 async function contactSupport() { //@ts-ignore
     $w('#wixChatBox').maximize();
     $w('#wixChatBox').expand();
+}
+
+function calculateTotalItemCount(lineItems) {
+    return lineItems.reduce((accumulator, item) => {
+        return accumulator + item.quantity;
+    }, 0);
+}
+
+function validateReturnRequest() {
+    const { returnType, _orderAddress, _selectedDropOffPoint, _returningProductIds } = getState();
+
+    if (_returningProductIds.length === 0) {
+        dispatch("notify", { message: "Please select at least one product to return!", type: "error" });
+        return false;
+    }
+
+    if (returnType === "dropoff") {
+        if (!_selectedDropOffPoint) {
+            dispatch("notify", { message: "You have to select a drop-off point first!", type: "error" });
+            return false;
+        }
+    } else {
+        if (!_orderAddress) {
+            dispatch("notify", { message: "There is an issue with your home address, please try again later or contact support!", type: "error", timeout: 5000 });
+            return false;
+        }
+    }
+
+    return true;
 }

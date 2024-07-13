@@ -34,7 +34,7 @@ async function initLightbox() {
 
     // Get current cart data and pass it to init function
     const { cartData } = await getCurrentCart();
-    setState({ cartData });
+    cartData ? setState({ cartData }) : setState({ cartData: null });
 }
 
 function setupStateEvents() {
@@ -42,7 +42,15 @@ function setupStateEvents() {
 
     // Listen for cart data and handle changes (price related stuff)
     connect("cartData", ({ cartData }) => {
-        if (!cartData) return null;
+        if (cartData === undefined) return null;
+
+        if (cartData === null) {
+            $w('#cartTitle').text = `Cart`;
+            $w('#noLineItems').expand();
+            $w('#lineItems').collapse();
+            $w('#preloader').collapse();
+            return null;
+        }
 
         $w('#estimatedTotal').text = cartData.priceSummary.total.formattedAmount; //@ts-ignore
         $w('#totalText, #estimatedTotal').expand();
@@ -246,8 +254,7 @@ function setEventListeners() {
 
     $w('#createCheckoutBtn').onClick(async () => {
         $w('#createCheckoutBtn').label = "Just a Sec...";
-        const { cartData } = getState();
-        const checkoutURL = await getCheckoutURL(cartData.cart.checkoutId);
+        const checkoutURL = await getCheckoutURL();
         $w('#createCheckoutBtn').label = "Redirecting...";
         to(checkoutURL);
     });

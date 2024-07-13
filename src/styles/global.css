@@ -36,7 +36,6 @@ th {
 .rotated-element {
     animation: rotateAnimation 1s ease-in-out forwards;
 }
-
 /* Product Page Info Section Styling End */
 
 /* Product Page Styling Start */
@@ -74,7 +73,6 @@ th {
     background-color: #920025;
     border: none !important;
 }
-
 /* Product Page Styling End */
 
 /* Notifier Styles Start */
@@ -97,7 +95,6 @@ th {
 .notifier-warning {
     background-color: #7c5800;
 }
-
 /* Notifier Styles End */
 
 /* AI Agent Styling Start */
@@ -164,7 +161,6 @@ th {
 .ai-textbox-h14 {
     height: 250px;
 }
-
 /* AI Agent Styling End */
 
 /* Explore Videos Styling Start */
@@ -203,7 +199,6 @@ th {
 .video-liked svg path {
     fill: black !important;
 }
-
 /* Explore Videos Styling End */
 
 /* Member Pages Styling */
@@ -213,6 +208,10 @@ th {
 
 .status-warning {
     color: #7c5800;
+}
+
+.status-cancelled>p {
+    color: #ba1a1a !important;
 }
 
 .notifier {
@@ -239,11 +238,9 @@ th {
 .cancelled-order-status-text h5 {
     color: #ba1a1a !important;
 }
-
 /* Limit Sections */
 
 /* Filters */
-
 .has-filters {
     border: none !important;
     background-color: black !important;
@@ -256,7 +253,9 @@ th {
 .has-filters:hover {
     background-color: rgba(0, 0, 0, 0.8) !important;
 }
+/* Filters End */
 
+/* Support */
 .header-search-logged-in {
     margin-right: 92px;
 }
@@ -271,4 +270,10 @@ th {
 
 .header-search-icon {
     margin-right: 60px;
+}
+/* Support End */
+
+/* Home */
+.aspect-ratio {
+    aspect-ratio: 9 / 16;
 }
