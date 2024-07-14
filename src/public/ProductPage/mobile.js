@@ -155,8 +155,15 @@ export function setupMobileStateEvents(state, { dispatch, setState, getState, co
     });
 
     // Update variant based SKU in case of there is a different SKU for that variant
-    connect("_currentVariant", ({ _currentVariant }) => {
+    connect("_currentVariant", ({ _currentVariant, _currentChoices }) => {
         if (_currentVariant) {
+            // If variant is not in stock then remove size selection.
+            if (_currentVariant.stock.inStock !== true) {
+                dispatch("notify", { message: "This size is not available 😞", type: "warning" });
+                $w('#mobileSizeChoiceButton').customClassList.remove("selected-size");
+                setState({ _currentChoices: { ..._currentChoices, "Size": undefined } });
+            }
+
             $w('#mobileProductSku').text = `Product SKU: ${_currentVariant.sku}`;
         }
     });
