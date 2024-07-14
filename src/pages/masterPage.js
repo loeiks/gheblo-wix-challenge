@@ -19,7 +19,7 @@ $w.onReady(function () {
 
 // Global functions are always called as Clusters to be notified in Clusters IST 1-2
 async function initClusters() {
-    if ($w('#Header').rendered) {
+    if ($w('#header').rendered) {
         if (authentication.loggedIn() === true) {
             $w("#memberLoginBar").expand();
             $w("#membersLoginBarMobileMenu").expand();

@@ -112,14 +112,14 @@ export function setupReviewsStateEvents(state, store) {
         }
     });
 
-    connect("_currentReviewsViewSection", ({ _currentReviewsViewSection }) => {
+    connect("_currentReviewsViewSection", ({ _currentReviewsViewSection, noQuestions }) => {
         if (_currentReviewsViewSection) {
-            handleReviewsView(_currentReviewsViewSection);
+            handleReviewsView(_currentReviewsViewSection, noQuestions);
         }
     });
 
-    connect("_totalProductReviews", "_reviewsWithComments", ({ _totalProductReviews, _reviewsWithComments }) => {
-        if (_reviewsWithComments?.length > 4 && _reviewsWithComments?.length > _totalProductReviews) {
+    connect("_totalProductReviews", "_reviewsWithComments", ({ _reviewsWithComments }) => {
+        if (_reviewsWithComments?.length > 4) {
             $w('#seeMoreReviewsButton').expand();
         } else {
             $w('#seeMoreReviewsButton').collapse();
@@ -242,26 +242,28 @@ function renderPhotosInReviewItem(photos, photoElements, photosBoxElement) {
     }
 }
 
-function handleReviewsView(view) {
+function handleReviewsView(view, noQuestions) {
     if (formFactor === ("Desktop" || "Tablet")) {
         // Render for desktop and tablet
         if (view === "expanded") {
-            $w('#header, #footer, #desktopMainSection, #reviewsSection, #discussionsSection').collapse();
+            $w('#header, #footer, #desktopMainSection, #reviewsSection, #discussionsSection, #emptyQuestionStateSection, #completeYourLookSection').collapse();
             $w('#reviewsExpandedSection').expand();
             $w('#reviewsExpandedSection').scrollTo();
         } else if (view === "preview") {
             $w('#reviewsExpandedSection').collapse();
-            $w('#header, #footer, #desktopMainSection, #reviewsSection, #discussionsSection').expand();
+            $w('#header, #footer, #desktopMainSection, #reviewsSection, #discussionsSection, #completeYourLookSection').expand();
+            if (noQuestions) { $w('#emptyQuestionStateSection').expand() };
         }
     } else {
         // Render for mobile
         if (view === "expanded") {
-            $w('#header, #footer, #mobileImagesSection, #mobileInfoSection, #discussionsSection, #reviewsSection').collapse();
+            $w('#header, #footer, #mobileImagesSection, #mobileInfoSection, #discussionsSection, #reviewsSection, #emptyQuestionStateSection, #completeYourLookSection').collapse();
             $w('#reviewsExpandedSection').expand();
             $w('#reviewsExpandedSection').scrollTo();
         } else if (view === "preview") {
             $w('#reviewsExpandedSection').collapse();
-            $w('#header, #footer, #mobileImagesSection, #mobileInfoSection, #discussionsSection, #reviewsSection').expand();
+            $w('#header, #footer, #mobileImagesSection, #mobileInfoSection, #discussionsSection, #reviewsSection, #completeYourLookSection').expand();
+            if (noQuestions) { $w('#emptyQuestionStateSection').expand() };
         }
     }
 }

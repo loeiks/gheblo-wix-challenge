@@ -104,9 +104,8 @@ const myAccountStore = (store) => {
             if (updatedReview) {
                 dispatch("notify", { message: "Review has been updated.", type: "success" });
 
-                const removedReviews = remove(reviews, review => review._id === _currentReview._id);
-                setState({ reviews: removedReviews });
-                setState({ reviews: [updatedReview] });
+                const removedReviews = remove(reviews, review => review._id !== _currentReview._id);
+                setState({ reviews: [...removedReviews, updatedReview] });
 
                 clearFields();
                 setState({ _currentState: "Reviews" });
