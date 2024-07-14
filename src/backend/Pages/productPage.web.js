@@ -8,26 +8,22 @@ import { getUniqueBuyersCountForThisProduct } from "backend/Helpers/product_help
 
 export const getProductPageData = webMethod(Permissions.Anyone, async (productSlug) => {
     try {
-        const start = new Date().getTime();
-
         const productData = await getProductData(productSlug);
         const calls = await Promise.all([
             getSuggestedPrompts(productSlug),
             getProductQuestions(productSlug, 0, 10),
             queryReviews(productSlug, 25, 0, true),
-            checkIsInFavs(productData._id)
+            checkIsInFavs(productData._id),
+            getUniqueBuyersCountForThisProduct(productSlug)
         ]);
 
-        const uniqueBuyersCount = await getUniqueBuyersCountForThisProduct(productSlug);
-
-        console.log(`SSR took ${new Date().getTime() - start}ms`);
         return {
             productData,
             suggestedPrompts: calls[0],
             productQuestions: calls[1],
             productReviews: calls[2],
             isInFavorite: calls[3],
-            uniqueBuyersCount
+            uniqueBuyersCount: calls[4]
         }
     } catch (err) {
         throw new Error(`Errow while loading product page data: ${err}`);

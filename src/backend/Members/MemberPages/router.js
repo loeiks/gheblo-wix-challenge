@@ -1,4 +1,4 @@
-import { ok, sendStatus, redirect, notFound, forbidden, router } from 'wix-router';
+import { ok, notFound, forbidden } from 'wix-router';
 import { getCurrentMemberEComData } from 'backend/Members/member_data.web.js';
 import { getRecentOrdersOfCurrentMember } from './header.web';
 import { getCurrentMemberFavoriteProducts } from './favorites.web';

@@ -99,6 +99,7 @@ const { getState, setState, dispatch, connect, readyStore } = appState;
 
 $w.onReady(async function () {
     // Load required data with SSR
+    const start = new Date().getTime();
     const {
         productData,
         suggestedPrompts,
@@ -107,6 +108,7 @@ $w.onReady(async function () {
         isInFavorite,
         uniqueBuyersCount
     } = await ssRedering("productPageData", getProductPageDetails);
+    console.log(`SSR took ${new Date().getTime() - start}ms`);
 
     initPage({
         productData,

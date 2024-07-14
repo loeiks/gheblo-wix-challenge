@@ -152,13 +152,14 @@ const store = createStoreon([myAccountStore]);
 const { connect, dispatch, getState, readyStore, setState } = store;
 
 $w.onReady(function () {
-    $w('Repeater').data = [];
     const routerData = getRouterData();
     initPage(routerData);
     return readyStore();
 });
 
 async function initPage(routerData) {
+    $w('Repeater').data = [];
+
     // Register State Events
     setupStateEvents();
     highLightCurrentTab();

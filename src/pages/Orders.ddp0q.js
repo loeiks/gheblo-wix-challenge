@@ -121,8 +121,11 @@ async function initPage(routerData) {
         const orderId = query["orderId"] || path[1];
         const { orders } = getState();
         const selectedOrder = orders.find(o => o._id === orderId);
-        setState({ _currentOrder: selectedOrder });
-        setState({ _currentState: "order" });
+
+        if (selectedOrder) {
+            setState({ _currentOrder: selectedOrder });
+            setState({ _currentState: "order" });
+        }
     }
 }
 
@@ -545,7 +548,23 @@ function extractVideoId(str) {
 
 function getImageURL(image) {
     const videoId = extractVideoId(image);
-    return `https://static.wixstatic.com/media/${videoId}~mv2.jpg`;
+    const extension = getImageExtension(image);
+    return `https://static.wixstatic.com/media/${videoId}~mv2.${extension}`;
+}
+
+function getImageExtension(imageString) {
+    let dotIndex = imageString.lastIndexOf('.');
+    if (dotIndex === -1) {
+        return null;
+    }
+
+    let hashIndex = imageString.indexOf('#', dotIndex);
+
+    if (hashIndex === -1) {
+        return imageString.substring(dotIndex + 1);
+    } else {
+        return imageString.substring(dotIndex + 1, hashIndex);
+    }
 }
 
 async function contactSupport() { //@ts-ignore

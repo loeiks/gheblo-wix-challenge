@@ -1,4 +1,5 @@
 import { prefix, path } from 'wix-location-frontend';
+import { prefetchPageResources } from 'wix-site-frontend';
 
 const pagesByPath = {
     account: "My Account",
@@ -10,6 +11,8 @@ const pagesByPath = {
 }
 
 export function highLightCurrentTab() {
+    preloadPages();
+
     if ($w('#memberPagesMenu').rendered) {
         if (prefix === "account") {
             let currentTab = pagesByPath[prefix];
@@ -34,4 +37,17 @@ export function highLightCurrentTab() {
             $w('#memberPagesMenu').menuItems = updatedMenuItems;
         }
     }
+}
+
+function preloadPages() {
+    let allPages = [];
+
+    for (const [index, slug] of Object.entries(pagesByPath)) {
+        if (slug === "account" || slug === path[0]) return null;
+        allPages.push(`https://www.gheblo.com/account/${slug}`);
+    }
+
+    prefetchPageResources({
+        pages: allPages
+    })
 }

@@ -112,7 +112,7 @@ function setEventListeners() {
 
     $w('#orderItemContainer').onClick((event) => {
         const { $item, itemData } = useScope(event);
-        to(`https://www.gheblo.com/account/orders?orderId=${itemData._id}`);
+        to(`https://www.gheblo.com/account/orders?orderId=${itemData.entity._id}`);
     });
 }
 
