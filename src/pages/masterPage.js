@@ -14,6 +14,7 @@ $w.onReady(function () {
 
     // Refresh page when user logs-in
     authentication.onLogin(() => to(url));
+    prefetchPageResources({ lightboxes: ["CustomCart"] });
 });
 
 // Global functions are always called as Clusters to be notified in Clusters IST 1-2
@@ -35,8 +36,6 @@ async function initClusters() {
 
 function eventListeners() {
     if ($w("#shoppingCart").rendered) {
-        prefetchPageResources({ lightboxes: ["CustomCart"] });
-
         $w("#shoppingCart").onClick(() => {
             openLightbox("CustomCart")
         });
