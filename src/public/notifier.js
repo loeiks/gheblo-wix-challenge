@@ -10,7 +10,7 @@ let timeoutId;
  * type: string,
  * timeout: number
  * }} param0 
- * @returns {function} Returns collapse function
+ * @returns {void} Returns collapse function
  */
 export function showNotifier({
     message,
@@ -32,17 +32,33 @@ export function showNotifier({
         timeout = 3500;
     }
 
-    $w('#notifierText').text = message;
-    $w('#notifierBackground').customClassList.values().forEach((className) => { $w('#notifierBackground').customClassList.remove(className); });
-    $w('#notifierBackground').customClassList.add("notifier-" + type);
-    $w('#notifierBackground').customClassList.add("notifier");
-    $w('#notifierBackground').expand();
+    if ($w('#notifierMemberPages').rendered) {
+        $w('#notifierTextMemberPages').text = message;
 
-    timeoutId = setTimeout(() => {
-        if (!$w('#notifierBackground').collapsed) {
-            $w('#notifierBackground').collapse();
-        }
-    }, timeout);
+        $w('#notifierMemberPages').customClassList.values().forEach((className) => { $w('#notifierMemberPages').customClassList.remove(className); });
+        $w('#notifierMemberPages').customClassList.add("notifier-" + type);
+        $w('#notifierMemberPages').customClassList.add("notifier");
+        $w('#notifierMemberPages').expand();
 
-    return $w('#notifierBackground').collapse;
+        timeoutId = setTimeout(() => {
+            if (!$w('#notifierMemberPages').collapsed) {
+                $w('#notifierMemberPages').collapse();
+            }
+        }, timeout);
+    }
+
+    if ($w('#notifierBackground').rendered) {
+        $w('#notifierText').text = message;
+
+        $w('#notifierBackground').customClassList.values().forEach((className) => { $w('#notifierBackground').customClassList.remove(className); });
+        $w('#notifierBackground').customClassList.add("notifier-" + type);
+        $w('#notifierBackground').customClassList.add("notifier");
+        $w('#notifierBackground').expand();
+
+        timeoutId = setTimeout(() => {
+            if (!$w('#notifierBackground').collapsed) {
+                $w('#notifierBackground').collapse();
+            }
+        }, timeout);
+    }
 }
