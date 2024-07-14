@@ -280,11 +280,15 @@ function setupOptions() {
     if (_currentItem.productData.productOptions["Size"]) {
         $w('#sizeSelectionRepeater').data = _currentItem.productData.productOptions["Size"].choices.map(c => ({ ...c, _id: uuidv4() }));
         $w('#sizeSelectionsBox').expand();
+    } else {
+        $w('#sizeSelectionsBox').collapse();
     }
 
     if (_currentItem.productData.productOptions["Color"]) {
         $w('#colorOptions').data = _currentItem.productData.productOptions["Color"].choices.map(c => ({ ...c, _id: uuidv4() }));
         $w('#colorSelectionsBox').expand();
+    } else {
+        $w('#colorSelectionsBox').collapse();
     }
 }
 
