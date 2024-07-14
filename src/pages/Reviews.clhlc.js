@@ -246,8 +246,9 @@ function setupStateEvents() {
                     break;
                 }
                 case "Edit": {
-                    $w('#stateBox').changeState("editAndCreateReview"); //@ts-ignore
-                    $w('#title, #mobilePageTitle').text = `Edit Review for ${_currentReview.product[0].entity.name}`;
+                    $w('#stateBox').changeState("editAndCreateReview");
+                    $w('#title').text = `Edit Review for ${_currentReview.product[0].entity.name}`;
+                    $w('#mobilePageTitle').text = "Edit Review";
                     $w('#shareReviewButton').label = "Update Review";
 
                     $w('#reviewRatingInput').value = _currentReview.content.rating;
@@ -257,8 +258,9 @@ function setupStateEvents() {
                     break;
                 }
                 case "Create": {
-                    $w('#stateBox').changeState("editAndCreateReview"); //@ts-ignore
-                    $w('#title, #mobilePageTitle').text = `Create Review for ${_currentProduct.entity.name}`;
+                    $w('#stateBox').changeState("editAndCreateReview");
+                    $w('#title').text = `Create Review for ${_currentProduct.entity.name}`;
+                    $w('#mobilePageTitle').text = "Create Review";
                     $w('#shareReviewButton').label = "Share Your Review";
                     break;
                 }
