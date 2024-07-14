@@ -1,6 +1,6 @@
 // Wix API Imports
 import { getRouterData } from 'wix-window-frontend';
-import { query, to } from 'wix-location-frontend';
+import { query, to, path } from 'wix-location-frontend';
 // NPM Imports
 import { createStoreon } from 'storeon-velo';
 import { useScope } from 'repeater-scope';
@@ -13,6 +13,7 @@ import { highLightCurrentTab } from 'public/MemberPages/memberMenu'; //@ts-ignor
 import { locations } from 'public/MemberPages/drop-off-locations.json';
 // Backend Imports
 import { cancelOrder, createReturnRequest } from 'backend/Members/member_orders.web';
+import { getProductSlugById } from 'backend/Helpers/product_helpers.web';
 
 /**
  * Setup Store for Explore Feed Page
@@ -114,6 +115,14 @@ async function initPage(routerData) {
 
     //@ts-ignore
     $w('#locationMap').markers = locations;
+
+    if (query["orderId"] || path[1]) {
+        const orderId = query["orderId"] || path[1];
+        const { orders } = getState();
+        const selectedOrder = orders.find(o => o._id === orderId);
+        setState({ _currentOrder: selectedOrder });
+        setState({ _currentState: "order" });
+    }
 }
 
 function setupStateEvents() {
@@ -266,11 +275,16 @@ function setEventListeners() {
         setState({ _currentState: "order" });
     });
 
-    $w('#lineItemsRepeater').onItemReady(($item, itemData, index) => {
+    $w('#lineItemsRepeater').onItemReady(async ($item, itemData, index) => {
         if (itemData._id === "1") return null;
 
         const { _currentOrder } = getState();
         $item('#lineItemImage').src = getImageURL(itemData.image);
+        $item('#lineItemImage').target = "_blank";
+        getProductSlugById(itemData.catalogReference.catalogItemId)
+            .then((slug) => {
+                $item('#lineItemImage').link = `/product-page/${slug}`;
+            }).catch(err => console.error(err));
 
         const { returnRequest } = _currentOrder;
 

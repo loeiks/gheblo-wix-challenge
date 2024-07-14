@@ -18,7 +18,6 @@ export function highLightCurrentTab() {
                 currentTab = pagesByPath[path];
             }
 
-            console.log($w('#mobilePageTitle'), currentTab);
             $w('#mobilePageTitle').text = currentTab;
 
             const updatedMenuItems = $w('#memberPagesMenu').menuItems.map((item) => {

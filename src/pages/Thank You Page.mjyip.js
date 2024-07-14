@@ -1,10 +1,16 @@
-// API Reference: https://www.wix.com/velo/reference/api-overview/introduction
-// “Hello, World!” Example: https://learn-code.wix.com/en/article/hello-world
+import { to, path } from "wix-location-frontend";
+import { showNotifier } from "public/notifier";
 
 $w.onReady(function () {
-    // Write your JavaScript here
+    console.log(path)
+    showNotifier({
+        message: "We will redirect you to your order details page in 5 seconds.",
+        type: "standard",
+        timeout: 10000
+    });
 
-    // To select an element by ID use: $w('#elementID')
-
-    // Click 'Preview' to run your code
+    setTimeout(() => {
+        // Redirect to order details page with orderId from the URL path
+        to(`/account/orders?orderId=${path[1]}`);
+    }, 5000);
 });

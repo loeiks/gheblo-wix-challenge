@@ -33,7 +33,7 @@ async function initLightbox() {
     setupStateEvents();
 
     // Get current cart data and pass it to init function
-    const { cartData } = await getCurrentCart();
+    const { cartData } = await getCurrentCart().catch((err) => { console.error(err); setState({ cartData: null }); });
     cartData ? setState({ cartData }) : setState({ cartData: null });
 }
 
