@@ -1,6 +1,7 @@
 // Wix API Imports
 import { getRouterData } from 'wix-window-frontend';
 import { query, to, path } from 'wix-location-frontend';
+import { cart, product } from 'wix-stores-frontend';
 // NPM Imports
 import { createStoreon } from 'storeon-velo';
 import { useScope } from 'repeater-scope';
@@ -424,7 +425,40 @@ function setEventListeners() {
         const url = await getOrderInvoiceURL(_currentOrder._id);
         $w('#downloadReceiptTextButton').text = `Redirecting to PDF...`;
         to(url);
-    })
+    });
+
+    $w('#addAllItemsToCart').onClick(async () => {
+        $w('#addAllItemsToCart').label = "Adding Items...";
+
+        let hasOutOfStock = false;
+        const { _currentOrder } = getState();
+        let productsToAdd = _currentOrder.lineItems.map(async (item) => {
+            const available = await product.getOptionsAvailability(
+                item.catalogReference.catalogItemId,
+                item.catalogReference.options.options
+            );
+
+            if (!available.availableForPurchase) {
+                hasOutOfStock = true;
+                return null;
+            }
+
+            return {
+                options: {
+                    choices: item.catalogReference.options.options
+                },
+                productId: item.catalogReference.catalogItemId,
+                quantity: item.quantity
+            }
+        });
+
+        productsToAdd = Promise.all(productsToAdd);
+
+        const message = hasOutOfStock ? "Some items are out of stock. They have not been added to your" : "Items have been added to your cart.";
+        const resp = await cart.addProducts(productsToAdd).catch((err) => console.error(err));
+        resp ? dispatch("notify", { message, type: "success" }) : dispatch("notify", { message: "Failed to add items to cart!", type: "error" });
+        $w('#addAllItemsToCart').label = "Add All Items to Cart";
+    });
 }
 
 // HELPER FUNCTIONS
