@@ -5,15 +5,16 @@ import { recursivelyConvertIds } from 'backend/Helpers/recursive_id_converter';
 
 export const queryVideos = webMethod(Permissions.Anyone, async (skipCount, notIncludedVideoId, limit = 0) => {
     try {
+        const totalVideos = await (await weivData.native("Gheblo/Videos")).estimatedDocumentCount();
+
         if (currentUser.loggedIn) {
             const memberId = currentUser.id;
-
-            const statsFilter = weivData.query("Gheblo/ShortVideoStats").eq("memberId", memberId)
+            const statsFilter = weivData.query("Gheblo/MemberVideoStats").eq("memberId", memberId)
             if (notIncludedVideoId) {
                 statsFilter.ne("videoId", notIncludedVideoId)
             }
 
-            let memberVideoStats = await weivData.query("Gheblo/ShortVideoStats")
+            let memberVideoStats = await weivData.query("Gheblo/MemberVideoStats")
                 .and(statsFilter)
                 .find({ suppressAuth: true, suppressHooks: true });
 
@@ -24,7 +25,7 @@ export const queryVideos = webMethod(Permissions.Anyone, async (skipCount, notIn
                 });
             }
 
-            const aggregationPipeline = weivData.aggregate("Gheblo/ShortVideos").descending("_createdDate");
+            const aggregationPipeline = weivData.aggregate("Gheblo/Videos").descending("score").skip(skipCount || 0).limit(limit || 15);
 
             if (watchedVideoIds.length > 0) {
                 aggregationPipeline.stage(
@@ -42,61 +43,60 @@ export const queryVideos = webMethod(Permissions.Anyone, async (skipCount, notIn
                 )
             }
 
-            const aggregateResult = await aggregationPipeline.skip(skipCount || 0)
-                .limit(limit || 15)
-                .stage(
-                    {
-                        $lookup: {
-                            from: "WixStoresProducts",
-                            localField: "productIds",
-                            foreignField: "entity._id",
-                            as: "products"
-                        }
-                    },
-                    {
-                        $lookup: {
-                            from: "WixMembersProfileData",
-                            localField: "_owner",
-                            foreignField: "entity._id",
-                            as: "memberProfileData"
-                        }
-                    },
-                    {
-                        $addFields: {
-                            _currentMemberId: memberId
-                        }
-                    },
-                    {
-                        $lookup: {
-                            from: "ShortVideoStats",
-                            let: {
-                                memberId: "$_currentMemberId",
-                                videoId: "$_id"
-                            },
-                            pipeline: [
-                                {
-                                    $match: {
-                                        $expr: {
-                                            $and: [
-                                                { $eq: ["$memberId", "$$memberId"] },
-                                                { $eq: ["$videoId", "$$videoId"] }
-                                            ]
-                                        }
+            const aggregateResult = await aggregationPipeline.stage(
+                {
+                    $lookup: {
+                        from: "WixStoresProducts",
+                        localField: "productIds",
+                        foreignField: "entity._id",
+                        as: "products"
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "WixMembersProfileData",
+                        localField: "_owner",
+                        foreignField: "entity._id",
+                        as: "memberProfileData"
+                    }
+                },
+                {
+                    $addFields: {
+                        _currentMemberId: memberId
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "MemberVideoStats",
+                        let: {
+                            memberId: "$_currentMemberId",
+                            videoId: "$_id"
+                        },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [
+                                            { $eq: ["$memberId", "$$memberId"] },
+                                            { $eq: ["$videoId", "$$videoId"] }
+                                        ]
                                     }
                                 }
-                            ],
-                            as: "memberVideoStats"
-                        }
+                            }
+                        ],
+                        as: "memberVideoStats"
                     }
-                )
-                .run({ suppressAuth: true });
+                }
+            ).run({ suppressAuth: true });
 
             return {
                 items: recursivelyConvertIds(aggregateResult.items),
-                skipCount: aggregateResult.length
+                skipCount: aggregateResult.length,
+                totalVideos
             };
         } else {
-            const randomVideos = await weivData.query("Gheblo/ShortVideos")
+            const randomVideos = await weivData.query("Gheblo/Videos")
+                .descending("score")
                 .skip(skipCount || 0)
                 .limit(limit || 15)
                 .include(
@@ -117,7 +117,8 @@ export const queryVideos = webMethod(Permissions.Anyone, async (skipCount, notIn
 
             return {
                 items: recursivelyConvertIds(randomVideos.items),
-                skipCount: randomVideos.length
+                skipCount: randomVideos.length,
+                totalVideos
             };
         }
     } catch (err) {
@@ -128,7 +129,7 @@ export const queryVideos = webMethod(Permissions.Anyone, async (skipCount, notIn
 export const getVideo = webMethod(Permissions.Anyone, async (videoId) => {
     try {
         const memberId = currentUser.loggedIn ? currentUser.id : null;
-        const videosAggregation = weivData.aggregate("Gheblo/ShortVideos")
+        const videosAggregation = weivData.aggregate("Gheblo/Videos")
             .filter(weivData.filter().eq("_id", convertId(videoId)))
             .stage(
                 {
@@ -159,7 +160,7 @@ export const getVideo = webMethod(Permissions.Anyone, async (videoId) => {
                 },
                 {
                     $lookup: {
-                        from: "ShortVideoStats",
+                        from: "MemberVideoStats",
                         let: {
                             memberId: "$_currentMemberId",
                             videoId: "$_id"

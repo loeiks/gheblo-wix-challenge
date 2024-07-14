@@ -1,4 +1,4 @@
-import { ok, sendStatus, redirect, notFound, forbidden, WixRouterSitemapEntry } from 'wix-router';
+import { ok, redirect, WixRouterSitemapEntry } from 'wix-router';
 import { queryVideos, getVideo } from 'backend/Explore/query_videos.web';
 import { currentUser } from 'wix-users-backend'
 import { queryProductFavs } from 'backend/Products/favs.web';
@@ -20,7 +20,7 @@ export async function explore_Router(request) {
         }
 
         // Query videos and exclude specific video id
-        const { items, skipCount } = await queryVideos(0, videoId);
+        const { items, skipCount, totalVideos } = await queryVideos(0, videoId);
 
         let feedVideos = items;
         if (specificVideo) {
@@ -36,7 +36,8 @@ export async function explore_Router(request) {
         return ok("Explore Products Video Timeline", {
             feedVideos,
             skipCount,
-            _productFavs: memberProductFavs
+            _productFavs: memberProductFavs,
+            totalVideos
         });
     } catch (err) {
         throw new Error(`Error while loading/rendering explore page: ${err}`);
@@ -45,7 +46,7 @@ export async function explore_Router(request) {
 
 export async function explore_SiteMap(sitemapRequest) {
     try {
-        const { items } = await weivData.query("Gheblo/ShortVideos").limit(100).find({ suppressAuth: true, suppressHooks: true });
+        const { items } = await weivData.query("Gheblo/Videos").limit(100).find({ suppressAuth: true, suppressHooks: true });
 
         const sitemapEntries = items.map((video) => {
             const entry = new WixRouterSitemapEntry();

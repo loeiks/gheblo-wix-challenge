@@ -1,7 +1,7 @@
 import { files } from 'wix-media.v2';
 import * as wixAuth from 'wix-auth'
 
-export async function gheblo_shortvideos_beforeInsert(item, context) {
+export async function gheblo_videos_beforeInsert(item, context) {
     try {
         const videoUrl = item.videoUrl;
         const videoId = getVideoId(videoUrl);
@@ -18,7 +18,7 @@ export async function gheblo_shortvideos_beforeInsert(item, context) {
             return item;
         }
     } catch (err) {
-        throw new Error(`Error when creating item on ShortVideos collection, ${err}`);
+        throw new Error(`Error when creating item on Videos collection, ${err}`);
     }
 }
 

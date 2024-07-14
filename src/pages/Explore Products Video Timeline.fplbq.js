@@ -66,8 +66,22 @@ const exploreFeedStore = (store) => {
     });
 }
 
+const exploreFeedStatsStore = (store) => {
+    store.on("@init", () => ({
+        _memberVideoStats: [],
+        _memberVideoStatsProductATC: []
+    }));
+
+    // Log state changes to console for debugging when dev is enabled
+    store.on("@changed", (state, changes) => {
+        if (query["dev"]) {
+            console.log(changes);
+        }
+    })
+}
+
 // Setup Store Functions
-const store = createStoreon([exploreFeedStore]);
+const store = createStoreon([exploreFeedStore, exploreFeedStatsStore]);
 const { connect, dispatch, getState, readyStore, setState } = store;
 
 $w.onReady(function () {

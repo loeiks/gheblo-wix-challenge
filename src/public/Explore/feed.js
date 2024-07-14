@@ -1,11 +1,11 @@
-import { likeVideo, removeLike } from "backend/Explore/video_actions.web.js";
+import { likeVideo, removeLike } from "backend/Explore/video_stats.web.js";
 import { useScope } from "repeater-scope";
 import { authentication } from "wix-members-frontend";
 import { formFactor, openModal, getBoundingRect, copyToClipboard, openLightbox } from 'wix-window-frontend';
 import _ from 'lodash';
 import { cart, product } from "wix-stores-frontend";
 import { addProductToFavs, removeProductFromFavs } from 'backend/Products/favs.web';
-import { saveStats } from 'backend/Explore/video_stats.web';
+import { saveProductATCStats, saveVideoStats } from 'backend/Explore/video_stats.web';
 import { queryVideos } from "backend/Explore/query_videos.web.js";
 import { local } from "wix-storage-frontend";
 import { _icons_ } from '../icons';
@@ -41,6 +41,7 @@ async function setupInitView(state, { dispatch, setState, getState, connect }) {
 export function setupFeedStateEvents(state, store) {
     const { dispatch, setState, getState, connect } = store;
     setEventListeners(state, store);
+    videoStatsEvents(store);
 
     connect("feedVideos", ({ feedVideos }) => {
         if (feedVideos) {
@@ -50,16 +51,12 @@ export function setupFeedStateEvents(state, store) {
         }
     });
 
-    connect("_currentVideoData", async ({ _currentVideoData, _currentVideoPlayer, _loggedIn, _previousVideoData, _previousVideoPlayer }) => {
+    connect("_currentVideoData", async ({ _currentVideoData, _currentVideoPlayer, _loggedIn, _previousVideoData, _previousVideoPlayer, _memberVideoStats }) => {
         if (_currentVideoData && _currentVideoPlayer && _previousVideoData && _previousVideoPlayer && _loggedIn === true) {
             const { _id } = _previousVideoData;
-
-            try {
-                // Update total watch time
-                await saveStats(_id, { watchTime: _previousVideoPlayer.currentTime });
-            } catch (err) {
-                console.error(err);
-            }
+            const previousVideoStats = _memberVideoStats.find(stat => stat.videoId === _id);
+            handleVideoStats(store, previousVideoStats);
+            _previousVideoPlayer.seek(0);
         }
 
         if (_currentVideoData && _currentVideoPlayer) {
@@ -72,22 +69,24 @@ export function setupFeedStateEvents(state, store) {
         }
     });
 
-    connect("_currentVideoIndex", ({ _currentVideoIndex, _loadOn }) => {
+    connect("_currentVideoIndex", ({ _currentVideoIndex, _loadOn, _isLoading }) => {
         if (_currentVideoIndex) {
-
             // If we are at the end of the feed, load more
             if (_currentVideoIndex >= _loadOn) {
                 // Wait some for mistakes
                 setTimeout(async () => {
-                    const { _currentVideoIndex } = getState();
+                    const currentTotal = $w('#exploreFeed').data.length;
+                    const { _currentVideoIndex, totalVideos, _isLoading } = getState();
 
                     // If we are in the same state load more
-                    if (_currentVideoIndex >= _loadOn) {
+                    if (_currentVideoIndex >= _loadOn && !_isLoading && currentTotal < totalVideos) {
+                        setState({ _isLoading: true });
                         const { items } = await queryVideos(15);
+                        console.log(items, $w('#exploreFeed').data);
                         $w('#exploreFeed').data = [...$w('#exploreFeed').data, ...items];
-                        setState({ _loadOn: $w('#exploreFeed').data.length - 5 });
+                        setState({ _loadOn: $w('#exploreFeed').data.length - 5, _isLoading: false });
                     }
-                }, 3000);
+                }, 2000);
             }
         }
     });
@@ -100,6 +99,7 @@ export function setupFeedStateEvents(state, store) {
 function setEventListeners(state, store) {
     const { dispatch, setState, getState, connect } = store;
 
+    // Setup video feed repeater
     $w('#exploreFeed').onItemReady(($item, itemData, index) => {
         const videoAuthorData = itemData.memberProfileData[0].entity.profile;
 
@@ -413,6 +413,9 @@ function setEventListeners(state, store) {
             }]).then(() => {
                 dispatch("notify", { message: `${productData.name} added to cart.`, type: "success" });
                 event.target.enable();
+
+                // Save action also in stats
+                handleProductATCStat(store, itemData._id, productData._id);
             });
         } catch (err) {
             dispatch("notify", { message: "An unknown error occurred!", type: "error" });
@@ -683,5 +686,81 @@ function refreshFavStatuses(store, productId) {
                 }
             }
         }
+    });
+}
+
+// Video Stats
+function videoStatsEvents(store) {
+    if (!authentication.loggedIn()) return null;
+    const { dispatch, setState, getState, connect } = store;
+
+    // Save watchtime + views when video is playing
+    $w('#videoPlayer').onProgress((event) => {
+        const { itemData, $item } = useScope(event);
+        const currentTime = $item("#videoPlayer").currentTime;
+
+        const { _memberVideoStats } = getState();
+        const previousData = _memberVideoStats.find(stat => stat.videoId === itemData._id);
+        const filteredStats = _memberVideoStats.filter(stat => stat.videoId !== itemData._id);
+
+        setState({
+            _memberVideoStats: [...filteredStats, {
+                videoId: itemData._id,
+                watchtime: currentTime > previousData?.watchtime || 0 > currentTime ? currentTime : previousData?.watchtime || 0,
+                save: currentTime > previousData?.watchtime || 0 > currentTime ? true : false
+            }]
+        });
+    });
+}
+
+async function handleProductATCStat(store, videoId, productId) {
+    if (!authentication.loggedIn()) return null;
+    const { dispatch, setState, getState, connect } = store;
+
+    const { _memberVideoStatsProductATC } = getState();
+    const currentData = _memberVideoStatsProductATC.find(stat => stat.videoId === videoId);
+
+    // If marked as not to save we will stop the function
+    if (currentData?.save === false) return null;
+
+    // Save data
+    const response = await saveProductATCStats(videoId, productId);
+    if (!response) {
+        // Try again to save after 2 seconds (failover timeout)
+        setTimeout(() => { saveProductATCStats(videoId, productId); }, 2000);
+    }
+
+    // Mark as not to save in that session
+    const filteredStats = _memberVideoStatsProductATC.filter(stat => stat.videoId !== videoId);
+    setState({
+        _memberVideoStatsProductATC: [...filteredStats, {
+            videoId,
+            save: false
+        }]
+    });
+}
+
+async function handleVideoStats(store, previousVideoStats) {
+    if (!authentication.loggedIn()) return null;
+    const { dispatch, setState, getState, connect } = store;
+
+    // If marked as not to save we will stop the function
+    if (previousVideoStats?.save === false) return null;
+    const { videoId, watchtime } = previousVideoStats;
+
+    const response = await saveVideoStats(videoId, watchtime);
+    if (!response) {
+        // Try again to save after 2 seconds (failover timeout)
+        setTimeout(() => { saveVideoStats(videoId, watchtime); }, 2000);
+    }
+
+    // Mark as not to save in that session
+    const { _memberVideoStats } = getState();
+    const filteredStats = _memberVideoStats.filter(stat => stat.videoId !== videoId);
+    setState({
+        _memberVideoStats: [...filteredStats, {
+            ...previousVideoStats,
+            save: false
+        }]
     });
 }

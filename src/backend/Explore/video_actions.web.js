@@ -24,7 +24,7 @@ export const publishVideo = webMethod(Permissions.SiteMember,
             const products = await (await weivData.native("Gheblo/WixStoresProducts", true)).find({ "entity.productPageUrl": { $in: productPageURLs } }).toArray();
             const productIds = products.map(product => product.entity._id);
 
-            const insertedItem = await weivData.insert("Gheblo/ShortVideos", {
+            const insertedItem = await weivData.insert("Gheblo/Videos", {
                 videoUrl: videoData.videoUrl,
                 title: videoData.title,
                 productIds,
@@ -59,7 +59,7 @@ export const updateVideo = webMethod(Permissions.SiteMember,
             const products = await (await weivData.native("Gheblo/WixStoresProducts", true)).find({ "entity.productPageUrl": { $in: productPageURLs } }).toArray();
             const productIds = products.map(product => product.entity._id);
 
-            return await weivData.update("Gheblo/ShortVideos", {
+            return await weivData.update("Gheblo/Videos", {
                 _id: videoData.videoId,
                 title: videoData.title,
                 productIds,
@@ -72,54 +72,12 @@ export const updateVideo = webMethod(Permissions.SiteMember,
 
 export const deleteVideo = webMethod(Permissions.SiteMember, async (videoId) => {
     try {
-        await weivData.remove("Gheblo/ShortVideos", videoId, { suppressAuth: true, suppressHooks: true, onlyOwner: true });
+        await weivData.remove("Gheblo/Videos", videoId, { suppressAuth: true, suppressHooks: true, onlyOwner: true });
         return true;
     } catch (err) {
         throw new Error(`Error deleting video: ${err}`);
     }
 });
-
-export const likeVideo = webMethod(Permissions.SiteMember, async (videoId) => {
-    try {
-        const memberId = currentUser.id;
-        const convretedVideoId = convertId(videoId);
-
-        const updatedStats = await (await weivData.native("Gheblo/ShortVideoStats", true)).findOneAndUpdate({ videoId: convretedVideoId, memberId }, {
-            $set: {
-                videoId: convretedVideoId,
-                memberId,
-                liked: true
-            }
-        }, { upsert: true, returnDocument: "after" });
-
-        //@ts-ignore
-        await (await weivData.native("Gheblo/ShortVideos", true)).findOneAndUpdate({ _id: convretedVideoId }, { $inc: { likes: +1 } });
-        return updatedStats;
-    } catch (err) {
-        console.error(err);
-    }
-});
-
-export const removeLike = webMethod(Permissions.SiteMember, async (videoId) => {
-    try {
-        const memberId = currentUser.id;
-        const convretedVideoId = convertId(videoId);
-
-        const updatedStats = await (await weivData.native("Gheblo/ShortVideoStats", true)).findOneAndUpdate({ videoId: convretedVideoId, memberId }, {
-            $set: {
-                videoId: convretedVideoId,
-                memberId,
-                liked: false
-            }
-        }, { upsert: true, returnDocument: "after" });
-
-        //@ts-ignore
-        await (await weivData.native("Gheblo/ShortVideos", true)).findOneAndUpdate({ _id: convretedVideoId }, { $inc: { likes: -1 } });
-        return updatedStats;
-    } catch (err) {
-        console.error(err);
-    }
-})
 
 // HELPERS
 function extractProductUrls(urlsString) {
