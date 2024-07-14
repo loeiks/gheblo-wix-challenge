@@ -455,7 +455,7 @@ function setEventListeners() {
             }
         });
 
-        productsToAdd = Promise.all(productsToAdd);
+        productsToAdd = await Promise.all(productsToAdd);
 
         const message = hasOutOfStock ? "Some items are out of stock. They have not been added to your" : "Items have been added to your cart.";
         const resp = await cart.addProducts(productsToAdd).catch((err) => console.error(err));
