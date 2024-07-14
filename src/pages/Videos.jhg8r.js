@@ -188,8 +188,8 @@ function setupStateEvents() {
         if (_currentState) {
             if (_currentState === "edit") {  //@ts-ignore
                 $w('#searchInVideosInput, #uploadVideoButton, #uploadInputContainer, #actualUploadInput').collapse();
-                $w('#stateBox').changeState("editAndCreate");
-                $w('#stateTitle').text = "Edit Video";
+                $w('#stateBox').changeState("editAndCreate"); //@ts-ignore
+                $w('#stateTitle, #mobilePageTitle').text = "Edit Video";
                 $w('#startUploadingVideoButton').label = "Update Video";
 
                 $w('#videoTitleInput').value = _currentVideo.title;
@@ -198,13 +198,13 @@ function setupStateEvents() {
                 clearFields(); //@ts-ignore
                 $w('#searchInVideosInput, #uploadVideoButton').collapse(); //@ts-ignore
                 $w('#uploadInputContainer, #actualUploadInput').expand();
-                $w('#stateBox').changeState("editAndCreate");
-                $w('#stateTitle').text = "Create Video";
+                $w('#stateBox').changeState("editAndCreate"); //@ts-ignore
+                $w('#stateTitle, #mobilePageTitle').text = "Create Video";
                 $w('#startUploadingVideoButton').label = "Start Uploading Video";
             } else if (_currentState === "view") {  //@ts-ignore
                 $w('#searchInVideosInput, #uploadVideoButton').expand();
-                $w('#stateBox').changeState("viewAndManage");
-                $w('#stateTitle').text = `Videos (${memberVideosResponse.length})`;
+                $w('#stateBox').changeState("viewAndManage"); //@ts-ignore
+                $w('#stateTitle, #mobilePageTitle').text = `Videos (${memberVideosResponse.length})`;
             }
         }
     });

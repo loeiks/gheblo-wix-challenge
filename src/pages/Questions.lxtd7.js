@@ -96,12 +96,12 @@ function setupStateEvents() {
     });
 
     connect("_currentState", ({ _currentState }) => {
-        if (_currentState === "questions") {
-            $w('#stateTitle').text = "Questions";
+        if (_currentState === "questions") { //@ts-ignore
+            $w('#stateTitle, #mobilePageTitle').text = "Questions";
             $w('#stateBox').changeState("questions");
             updateMenuStatus("Questions");
-        } else if (_currentState === "replies") {
-            $w('#stateTitle').text = "Replies";
+        } else if (_currentState === "replies") { //@ts-ignore
+            $w('#stateTitle, #mobilePageTitle').text = "Replies";
             $w('#stateBox').changeState("replies");
             updateMenuStatus("Replies");
         }

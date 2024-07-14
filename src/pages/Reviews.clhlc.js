@@ -236,18 +236,18 @@ function setupStateEvents() {
         if (_currentState) {
             switch (_currentState) {
                 case "Review Them": {
-                    $w('#stateBox').changeState("reviewThem");
-                    $w('#title').text = "Review Products";
+                    $w('#stateBox').changeState("reviewThem"); //@ts-ignore
+                    $w('#title, #mobilePageTitle').text = "Review Products";
                     break;
                 }
                 case "Reviews": {
-                    $w('#stateBox').changeState("reviews");
-                    $w('#title').text = "My Reviews";
+                    $w('#stateBox').changeState("reviews"); //@ts-ignore
+                    $w('#title, #mobilePageTitle').text = "My Reviews";
                     break;
                 }
                 case "Edit": {
-                    $w('#stateBox').changeState("editAndCreateReview");
-                    $w('#title').text = `Edit Review for ${_currentReview.product[0].entity.name}`;
+                    $w('#stateBox').changeState("editAndCreateReview"); //@ts-ignore
+                    $w('#title, #mobilePageTitle').text = `Edit Review for ${_currentReview.product[0].entity.name}`;
                     $w('#shareReviewButton').label = "Update Review";
 
                     $w('#reviewRatingInput').value = _currentReview.content.rating;
@@ -257,14 +257,14 @@ function setupStateEvents() {
                     break;
                 }
                 case "Create": {
-                    $w('#stateBox').changeState("editAndCreateReview");
-                    $w('#title').text = `Create Review for ${_currentProduct.entity.name}`;
+                    $w('#stateBox').changeState("editAndCreateReview"); //@ts-ignore
+                    $w('#title, #mobilePageTitle').text = `Create Review for ${_currentProduct.entity.name}`;
                     $w('#shareReviewButton').label = "Share Your Review";
                     break;
                 }
                 default: {
-                    $w('#stateBox').changeState("reviewThem");
-                    $w('#title').text = "Review Products";
+                    $w('#stateBox').changeState("reviewThem"); //@ts-ignore
+                    $w('#title, #mobilePageTitle').text = "Review Products";
                     break;
                 }
             }

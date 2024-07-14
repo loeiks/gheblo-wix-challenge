@@ -163,23 +163,23 @@ function setupStateEvents() {
     connect("_currentState", ({ _currentState }) => {
         if (_currentState) {
             switch (_currentState) {
-                case "cancelOrder": {
-                    $w('#title').text = "Back to Orders";
+                case "cancelOrder": { //@ts-ignore
+                    $w('#title, #mobilePageTitle').text = "Back to Orders";
                     $w('#stateBox').changeState("cancelOrder");
                     break;
                 }
-                case "orders": {
-                    $w('#title').text = "Orders";
+                case "orders": { //@ts-ignore
+                    $w('#title, #mobilePageTitle').text = "Orders";
                     $w('#stateBox').changeState("orders");
                     break;
                 }
-                case "order": {
-                    $w('#title').text = "Order";
+                case "order": { //@ts-ignore
+                    $w('#title, #mobilePageTitle').text = "Order";
                     $w('#stateBox').changeState("order");
                     break;
                 }
-                case "returnOrder": {
-                    $w('#title').text = "Return Request";
+                case "returnOrder": { //@ts-ignore
+                    $w('#title, #mobilePageTitle').text = "Return Request";
                     $w('#stateBox').changeState("returnOrder");
                     break;
                 }
