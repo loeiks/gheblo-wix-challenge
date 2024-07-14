@@ -93,7 +93,7 @@ export const getGenAIResponse = webMethod(Permissions.Anyone, async (prompt, pro
                 reviewItems = reviewsOfProduct["items"].map((review) => {
                     return {
                         _owner: review._owner,
-                        reviewText: review.content.body,
+                        reviewText: review.content.body || "",
                         reviewRating: review.content.rating,
                         imagesCount: review.content.media?.length || 0
                     }

@@ -23,14 +23,18 @@ export const createReview = webMethod(Permissions.SiteMember,
                 if (!reviewData.content || !reviewData.productId) {
                     throw new Error(`Review data is not valid, no content or productId`);
                 } else {
-                    if (!reviewData.content.body || !reviewData.content.rating) {
-                        throw new Error(`Review data is not valid, no content body or rating`);
+                    if (!reviewData.content.rating) {
+                        throw new Error(`Review rating is not valid!`);
                     }
                 }
             }
 
             if (!reviewData.content.media) {
                 reviewData.content.media = [];
+            }
+
+            if (!reviewData.content.body) {
+                reviewData.content.body = null;
             }
 
             const productData = await (await weivData.native("Gheblo/WixStoresProducts", true)).findOne({ "entity._id": reviewData.productId });
@@ -69,14 +73,18 @@ export const updateReview = webMethod(Permissions.SiteMember,
                 if (!reviewData.content || !reviewData.productId) {
                     throw new Error(`Review data is not valid, no content or productId`);
                 } else {
-                    if (!reviewData.content.body || !reviewData.content.rating) {
-                        throw new Error(`Review data is not valid, no content body or rating`);
+                    if (!reviewData.content.rating) {
+                        throw new Error(`Review rating is not valid!`);
                     }
                 }
             }
 
             if (!reviewData.content.media) {
                 reviewData.content.media = [];
+            }
+
+            if (!reviewData.content.body) {
+                reviewData.content.body = null;
             }
 
             const productData = await (await weivData.native("Gheblo/WixStoresProducts", true)).findOne({ "entity._id": reviewData.productId });
@@ -121,11 +129,7 @@ export const queryReviews = webMethod(Permissions.Anyone, async (productSlug, li
         const result = await (await weivData.native("Gheblo/ProductReviews", true)).find({
             "productId": {
                 $eq: product._id
-            },
-            "content.body": {
-                $exists: true,
-                $ne: null
-            },
+            }
         }, { sort: { "_id": -1 }, limit: limit || 10, skip: skip || 0 }).toArray();
 
         const totalReviews = result.length > 0 ?

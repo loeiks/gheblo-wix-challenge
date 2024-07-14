@@ -41,11 +41,16 @@ function setupStateEvents() {
 
             $w('#currentRating').rating = _currentReview.content.rating;
             $w('#currentMemberAndDate').html = `<p class="font_7">${_currentReview.memberData.profile.nickname} | <span style="color: #5d5e61">${moment(_currentReview._updatedDate).format('DD MMM YYYY')}</span></p>`;
-            $w('#currentReviewComment').text = _currentReview.content.body;
+            $w('#currentReviewComment').html = _currentReview.content.body ? `<p>${_currentReview.content.body}</p>` : `<p style="color:#5d5e61;">No review comment.</p>`;
         }
     });
 
     connect("currentIndex", ({ currentIndex, state }) => {
+        if (state._reviewsWithPhotosOnly.length === 1) { //@ts-ignore
+            $w('#nextImage, #previousImage').collapse();
+            return null;
+        }
+
         if (currentIndex === state._reviewsWithPhotosOnly.length - 1) {
             $w('#nextImage').collapse();
             $w('#previousImage').expand();

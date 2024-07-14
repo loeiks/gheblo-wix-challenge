@@ -232,7 +232,7 @@ function setupStateEvents() {
         }
     });
 
-    connect("_currentState", ({ _currentState, _currentReview }) => {
+    connect("_currentState", ({ _currentState, _currentReview, _currentProduct }) => {
         if (_currentState) {
             switch (_currentState) {
                 case "Review Them": {
@@ -247,18 +247,18 @@ function setupStateEvents() {
                 }
                 case "Edit": {
                     $w('#stateBox').changeState("editAndCreateReview");
-                    $w('#title').text = "Edit Review";
+                    $w('#title').text = `Edit Review for ${_currentReview.product[0].entity.name}`;
                     $w('#shareReviewButton').label = "Update Review";
 
                     $w('#reviewRatingInput').value = _currentReview.content.rating;
-                    $w('#reviewCommentInput').value = _currentReview.content.body;
+                    $w('#reviewCommentInput').value = _currentReview.content?.body;
                     $w('#imageUploadInput').buttonLabel = "Add to Replace Existing Images";
 
                     break;
                 }
                 case "Create": {
                     $w('#stateBox').changeState("editAndCreateReview");
-                    $w('#title').text = "Create Review";
+                    $w('#title').text = `Create Review for ${_currentProduct.entity.name}`;
                     $w('#shareReviewButton').label = "Share Your Review";
                     break;
                 }
@@ -285,8 +285,10 @@ function setEventListeners() {
     });
 
     $w('#productRatingInput').onClick((event) => {
-        const { itemData } = useScope(event);
+        const { itemData, $item } = useScope(event);
+        $w('#reviewRatingInput').value = event.target.value;
         setState({ _currentState: "Create", _currentProduct: itemData });
+        setTimeout(() => { $item('#productRatingInput').value = null; }, 500);
     });
 
     $w('#shareReviewButton').onClick((event) => {
@@ -305,7 +307,7 @@ function setEventListeners() {
         $item('#reviewProductImage').src = itemData.product[0].entity.mainMedia;
         $item('#reviewProductImage').link = `/product-page/${itemData.product[0].entity.slug}`;
         $item('#reviewProductImage').target = "_blank";
-        
+
         $item('#reviewProductName').text = itemData.product[0].entity.name;
         $item('#reviewComment').text = itemData.content.body;
         $item('#rating').rating = itemData.content.rating;

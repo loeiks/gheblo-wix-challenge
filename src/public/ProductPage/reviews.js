@@ -42,13 +42,26 @@ export function setupReviewsStateEvents(state, store) {
         }
     });
 
+    connect("_reviewsWithComments", ({ _reviewsWithComments }) => {
+        if (!_reviewsWithComments) return null;
+
+        if (_reviewsWithComments.length > 0) {
+            // For the preview section show only first 4 reviews. For rest attach all of them.
+            $w('#reviewsOverviewRepeater').data = _reviewsWithComments.slice(0, 4);
+            $w('#allReviewsRepeater').data = _reviewsWithComments;
+            $w('#reviewsOverviewRepeater, #allReviewsRepeater').expand();
+        } else {
+            $w('#reviewsOverviewRepeater, #allReviewsRepeater').collapse();
+        }
+    })
+
     connect("_productReviews", ({ _productReviews }) => {
         if (_productReviews?.length > 0) {
             $w('#reviewsSection').restore();
 
-            // For the preview section show only first 4 reviews. For rest attach all of them.
-            $w('#reviewsOverviewRepeater').data = _productReviews.slice(0, 4);
-            $w('#allReviewsRepeater').data = _productReviews;
+            // Save reviews with comments only
+            const reviewsWithComments = _productReviews.filter(review => review.content.body);
+            setState({ _reviewsWithComments: reviewsWithComments });
 
             // Run the photos slider update
             const _reviewsWithPhotosOnly = _productReviews.filter((review) => {
@@ -105,11 +118,11 @@ export function setupReviewsStateEvents(state, store) {
         }
     });
 
-    connect("_totalProductReviews", "_productReviews", ({ _totalProductReviews, _productReviews }) => {
-        if (_productReviews?.length === _totalProductReviews) {
-            $w('#seeMoreReviewsButton').collapse();
-        } else {
+    connect("_totalProductReviews", "_reviewsWithComments", ({ _totalProductReviews, _reviewsWithComments }) => {
+        if (_reviewsWithComments?.length > 4 && _reviewsWithComments?.length > _totalProductReviews) {
             $w('#seeMoreReviewsButton').expand();
+        } else {
+            $w('#seeMoreReviewsButton').collapse();
         }
     });
 }
@@ -203,7 +216,7 @@ function setupReviewMemberData(itemData, {
     profilePhotoElement.src = itemData.memberData.profile.profilePhoto?.url || _icons_.profilePhotoNull;
     usernameDateElement.html = `<p class="font_7">${itemData.memberData.profile.nickname} | <span style="color: #5d5e61">${moment(itemData._updatedDate).format('DD MMM YYYY')}</span></p>`;
     ratingElement.rating = itemData.content.rating;
-    reviewCommentElement.text = itemData.content.body;
+    reviewCommentElement.text = itemData.content.body || "No review comment.";
 }
 
 function checkIfReviewHasPhotos(itemData) {
