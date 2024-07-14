@@ -130,7 +130,6 @@ export function setupDesktopStateEvents(state, { dispatch, setState, getState, c
 
     // Check and update current variant based on available options
     connect("_currentChoices", ({ _currentChoices, productVariants, productOptions, productImagesByColor, _previous_currentChoices }) => {
-
         const selectionsCount = keys(productOptions);
         const selectedSelectionsCount = keys(_currentChoices);
 
@@ -155,8 +154,15 @@ export function setupDesktopStateEvents(state, { dispatch, setState, getState, c
     });
 
     // Update variant based SKU in case of there is a different SKU for that variant
-    connect("_currentVariant", ({ _currentVariant }) => {
+    connect("_currentVariant", ({ _currentVariant, _currentChoices }) => {
         if (_currentVariant) {
+            // If variant is not in stock then remove size selection.
+            if (_currentVariant.stock.inStock !== true) {
+                dispatch("notify", { message: "This size is not available 😞", type: "warning" });
+                $w('#sizeChoiceButton').customClassList.remove("selected-size");
+                setState({ _currentChoices: { ..._currentChoices, "Size": undefined } });
+            }
+
             $w('#productSku').text = `Product SKU: ${_currentVariant.sku}`;
         }
     });
@@ -174,23 +180,6 @@ export function setupDesktopStateEvents(state, { dispatch, setState, getState, c
 
 // SETUP EVENT ELEMENT LISTENERS
 function setEventListeners(state, { dispatch, setState, getState, connect }) {
-    // Setup preview images
-    // $w('#productImagesPreview').onItemReady(($item, itemData, index) => {
-    //     $item('#productImagePreview').src = itemData.src;
-    //     if (itemData.alt) {
-    //         $item('#productImagePreview').alt = itemData.alt;
-    //     }
-    // });
-
-    // Handle on preview image click (open required index item)
-    // $w('#productImagePreviewItem').onClick((event) => {
-    //     const { itemData } = useScope(event);
-    //     const selectedImage = $w('#productImages').items.find(item => item.src === itemData.src);
-    //     const removedArray = $w('#productImages').items.filter(item => item.src !== itemData.src);
-    //     $w('#productImages').items = [selectedImage, ...removedArray];
-    //     $w('#productImages').previous();
-    // });
-
     // Setup color choices (color selection)
     $w('#colorSelectionRepeater').onItemReady(($item, itemData, index) => {
         $item('#colorChoicePreview').src = itemData.images[itemData.images.length - 2].src;
