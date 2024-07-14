@@ -3,6 +3,7 @@ import { webMethod, Permissions } from 'wix-web-module';
 import { currentUser } from 'wix-users-backend';
 import * as wixAuth from 'wix-auth';
 import weivData from '@exweiv/weiv-data';
+import { invoices } from 'wix-billing-backend';
 
 export const cancelOrder = webMethod(Permissions.SiteMember, async (orderId, reasonToSave) => {
     try {
@@ -70,5 +71,14 @@ export const createReturnRequest = webMethod(Permissions.SiteMember, async (orde
         return order;
     } catch (err) {
         throw new Error(`Error while creating return request: ${err}`);
+    }
+});
+
+export const getOrderInvoiceURL = webMethod(Permissions.SiteMember, async (orderId) => {
+    try {
+        const { id } = await invoices.getInvoice(orderId);
+        return invoices.createInvoicePreviewUrl(id, { suppressAuth: true });
+    } catch (err) {
+        throw new Error(`Error while getting order invoice: ${err}`);
     }
 });

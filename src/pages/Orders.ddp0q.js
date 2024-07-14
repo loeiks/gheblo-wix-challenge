@@ -12,7 +12,7 @@ import { showNotifier } from 'public/notifier';
 import { highLightCurrentTab } from 'public/MemberPages/memberMenu'; //@ts-ignore
 import { locations } from 'public/MemberPages/drop-off-locations.json';
 // Backend Imports
-import { cancelOrder, createReturnRequest } from 'backend/Members/member_orders.web';
+import { cancelOrder, createReturnRequest, getOrderInvoiceURL } from 'backend/Members/member_orders.web';
 import { getProductSlugById } from 'backend/Helpers/product_helpers.web';
 
 /**
@@ -417,6 +417,14 @@ function setEventListeners() {
             console.error("Failed to create return request. Please try again later.", err);
         }
     });
+
+    $w('#downloadReceiptTextButton').onClick(async () => {
+        const { _currentOrder } = getState();
+        $w('#downloadReceiptTextButton').text = `Generating PDF...`;
+        const url = await getOrderInvoiceURL(_currentOrder._id);
+        $w('#downloadReceiptTextButton').text = `Redirecting to PDF...`;
+        to(url);
+    })
 }
 
 // HELPER FUNCTIONS
