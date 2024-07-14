@@ -1,6 +1,5 @@
 import { Permissions, webMethod } from 'wix-web-module';
-import weivData, { convertId } from '@exweiv/weiv-data';
-import { currentUser } from 'wix-users-backend';
+import weivData from '@exweiv/weiv-data';
 import { removeQueryParameters } from 'backend/Helpers/url_helpers';
 
 export const publishVideo = webMethod(Permissions.SiteMember,

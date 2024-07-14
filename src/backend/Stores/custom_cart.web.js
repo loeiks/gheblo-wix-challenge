@@ -75,7 +75,7 @@ export const getVariantSockQuantity = webMethod(Permissions.Anyone, async (choic
 
 export const getCheckoutURL = webMethod(Permissions.Anyone, async () => {
     try {
-        /**@type {import("wix-ecom-backend").currentCart.CreateCheckoutFromCurrentCartOptions} */
+        /**@type {import("wix-ecom-backend").currentCart.CreateCheckoutFromCurrentCartOptions} */ //@ts-ignore
         const checkoutFromCurrentCartOptions = { channelType: "WEB" }
 
         if (currentUser.loggedIn) {

@@ -3,9 +3,8 @@ import { createStoreon } from 'storeon-velo';
 import { query, to } from 'wix-location-frontend';
 import { useScope } from 'repeater-scope';
 import { v4 as uuidv4 } from 'uuid';
-import { isEqual, max } from 'lodash';
+import { isEqual } from 'lodash';
 import { product } from "wix-stores-frontend";
-import { showNotifier } from 'public/notifier';
 import { lightbox } from 'wix-window-frontend';
 
 // Setup State Manager

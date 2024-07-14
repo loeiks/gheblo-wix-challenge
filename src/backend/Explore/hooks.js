@@ -3,20 +3,20 @@ import weivData, { convertId } from "@exweiv/weiv-data";
 // Video Stats Algorithm
 export async function updateVideoStats(updatedVideoId) {
     try {
-        // const hasStatsToRender = await (await weivData.native("Gheblo/MemberVideoStats", true)).countDocuments({ "_updatedDate": { $lte: new Date().getTime() - 5 * 60 * 1000 } });
+        const hasStatsToRender = await (await weivData.native("Gheblo/MemberVideoStats", true)).countDocuments({ "_updatedDate": { $lte: new Date().getTime() - 5 * 60 * 1000 } });
 
-        // // Don't re-render if there are only two new updates.
-        // if (hasStatsToRender <= 2) {
-        //     return null;
-        // }
+        // Don't re-render if there are only two new updates.
+        if (hasStatsToRender <= 2) {
+            return null;
+        }
 
         const result = await (await weivData.native("Gheblo/MemberVideoStats", true)).aggregate(
             [
                 {
                     $match: {
-                        // _updatedDate: {
-                        //     $lte: new Date().getTime() - 5 * 60 * 1000 // Filter stats that are at least 10 minutes old
-                        // },
+                        _updatedDate: {
+                            $lte: new Date().getTime() - 5 * 60 * 1000 // Filter stats that are at least 10 minutes old
+                        },
                         videoId: {
                             $eq: convertId(updatedVideoId) // Only update stats for the specified videoId
                         }

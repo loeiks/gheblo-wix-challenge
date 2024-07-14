@@ -7,7 +7,7 @@ import { setTitle } from 'wix-seo-frontend';
 import { renderFeed, setupFeedStateEvents } from 'public/Explore/feed';
 // Public Imports
 import { showNotifier } from 'public/notifier';
-import _ from 'lodash';
+import { without } from 'lodash';
 
 const _likedVideoIcon = "https://static.wixstatic.com/shapes/510eca_533c8b3ec0e14523b415e74e8fa63768.svg";
 const _mutedIcon = "https://static.wixstatic.com/shapes/510eca_414bd1e2b99f4e6bb6a5ac0a4ef0c321.svg";
@@ -60,7 +60,7 @@ const exploreFeedStore = (store) => {
         } else {
             targetButton.customClassList.remove("in-favs");
             targetButton.icon = icons._favIcon;
-            const newFavs = _.without(_productFavs, productId);
+            const newFavs = without(_productFavs, productId);
             store.set({ _productFavs: newFavs });
         }
     });

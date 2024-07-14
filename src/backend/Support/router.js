@@ -1,4 +1,4 @@
-import { ok, sendStatus, redirect, notFound, forbidden } from 'wix-router';
+import { ok, notFound } from 'wix-router';
 import { getCurrentMemberData } from 'backend/Helpers/member_helpers';
 import { getArticle } from './support_system.web';
 

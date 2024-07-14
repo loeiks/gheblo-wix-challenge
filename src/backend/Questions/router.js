@@ -1,4 +1,4 @@
-import { ok, sendStatus, redirect, notFound, forbidden } from 'wix-router';
+import { ok, redirect, notFound } from 'wix-router';
 import { getProductQuestions, getQuestionAndReplies } from 'backend/Questions/query.web';
 import { getUniqueBuyersCountForThisProduct } from 'backend/Helpers/product_helpers.web';
 

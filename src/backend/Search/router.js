@@ -1,4 +1,4 @@
-import { ok, sendStatus, redirect, notFound, forbidden } from 'wix-router';
+import { ok, notFound } from 'wix-router';
 import { searchInProducts } from './search_products.web';
 
 /**
