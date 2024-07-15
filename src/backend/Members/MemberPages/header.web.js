@@ -12,6 +12,7 @@ export const getRecentOrdersOfCurrentMember = webMethod(Permissions.SiteMember, 
             .descending("entity._createdDate")
             .eq("entity.buyerInfo.memberId", currentMemberId)
             .gt("entity._createdDate", dateFilterDate)
+            .limit(7)
             .find({ suppressAuth: true, suppressHooks: true });
 
         return orders.items;
