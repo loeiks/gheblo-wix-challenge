@@ -35,12 +35,6 @@ async function initClusters() {
 }
 
 function eventListeners() {
-    if ($w("#shoppingCart").rendered) {
-        $w("#shoppingCart").onClick(() => {
-            openLightbox("CustomCart")
-        });
-    }
-
     if ($w("#searchIcon").rendered) {
         $w("#searchIcon").onClick(() => {
             openLightbox("Search Box");
@@ -51,6 +45,16 @@ function eventListeners() {
         $w('#startChat').onClick(() => {
             $w('#wixChatBox').maximize();
             $w('#wixChatBox').expand();
+        });
+    }
+
+    if ($w('#subscribeNewsletterButton').rendered) {
+        $w('#subscribeNewsletterButton').onClick(() => {
+            const email = $w('#newsletterEmailInput').value;
+            const isValid = $w('#termsCheckboxNewsletter').checked;
+            if (email && isValid) {
+                $w('#subscribeNewsletterButton').label = "Subscribed";
+            }
         });
     }
 }
