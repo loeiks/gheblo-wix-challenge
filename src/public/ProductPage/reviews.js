@@ -246,23 +246,23 @@ function handleReviewsView(view, noQuestions) {
     if (formFactor === ("Desktop" || "Tablet")) {
         // Render for desktop and tablet
         if (view === "expanded") {
-            $w('#header, #footer, #desktopMainSection, #reviewsSection, #emptyQuestionStateSection, #completeYourLookSection, #questionsSection').collapse();
+            $w('#header, #footer, #desktopMainSection, #reviewsSection, #emptyQuestionStateSection, #completeYourLookSection, #questionsSection, #breadcrumbsSection').collapse();
             $w('#reviewsExpandedSection').expand();
             $w('#reviewsExpandedSection').scrollTo();
         } else if (view === "preview") {
             $w('#reviewsExpandedSection').collapse();
-            $w('#header, #footer, #desktopMainSection, #reviewsSection, #completeYourLookSection').expand();
+            $w('#header, #footer, #desktopMainSection, #reviewsSection, #completeYourLookSection, #breadcrumbsSection').expand();
             if (noQuestions) { $w('#emptyQuestionStateSection').expand() } else { $w('#questionsSection').expand() };
         }
     } else {
         // Render for mobile
         if (view === "expanded") {
-            $w('#header, #footer, #mobileImagesSection, #mobileInfoSection, #reviewsSection, #emptyQuestionStateSection, #completeYourLookSection, #questionsSection').collapse();
+            $w('#header, #footer, #mobileImagesSection, #mobileInfoSection, #reviewsSection, #emptyQuestionStateSection, #completeYourLookSection, #questionsSection, #breadcrumbsSection').collapse();
             $w('#reviewsExpandedSection').expand();
             $w('#reviewsExpandedSection').scrollTo();
         } else if (view === "preview") {
             $w('#reviewsExpandedSection').collapse();
-            $w('#header, #footer, #mobileImagesSection, #mobileInfoSection, #reviewsSection, #completeYourLookSection').expand();
+            $w('#header, #footer, #mobileImagesSection, #mobileInfoSection, #reviewsSection, #completeYourLookSection, #breadcrumbsSection').expand();
             if (noQuestions) { $w('#emptyQuestionStateSection').expand() } else { $w('#questionsSection').expand() };
         }
     }
