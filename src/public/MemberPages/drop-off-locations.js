@@ -1,4 +1,4 @@
-{
+export const l = {
     "locations": [
         {
             "address": "Kuzguncuk 34674 Üsküdar/İstanbul Türkiye",

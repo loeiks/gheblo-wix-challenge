@@ -13,7 +13,10 @@ $w.onReady(function () {
     }
 
     // Refresh page when user logs-in
-    authentication.onLogin(() => to(url));
+    authentication.onLogin(() => setTimeout(() => {
+        to(url)
+    }, 1000));
+    
     prefetchPageResources({ lightboxes: ["CustomCart"] });
 });
 

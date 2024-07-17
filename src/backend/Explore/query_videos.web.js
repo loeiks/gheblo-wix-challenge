@@ -5,7 +5,7 @@ import { recursivelyConvertIds } from 'backend/Helpers/recursive_id_converter';
 
 export const queryVideos = webMethod(Permissions.Anyone, async (skipCount, notIncludedVideoId, limit = 0) => {
     try {
-        const totalVideos = await (await weivData.native("Gheblo/Videos")).estimatedDocumentCount();
+        const totalVideos = await (await weivData.native("Gheblo/Videos", true)).estimatedDocumentCount();
 
         if (currentUser.loggedIn) {
             const memberId = currentUser.id;

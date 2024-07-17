@@ -14,9 +14,6 @@ export async function updateVideoStats(updatedVideoId) {
             [
                 {
                     $match: {
-                        _updatedDate: {
-                            $lte: new Date().getTime() - 5 * 60 * 1000 // Filter stats that are at least 10 minutes old
-                        },
                         videoId: {
                             $eq: convertId(updatedVideoId) // Only update stats for the specified videoId
                         }

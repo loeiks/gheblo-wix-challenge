@@ -10,8 +10,8 @@ import axios from 'axios';
 // Public Imports
 import { setupHeader } from 'public/MemberPages/memberHeaders';
 import { showNotifier } from 'public/notifier';
-import { highLightCurrentTab } from 'public/MemberPages/memberMenu'; //@ts-ignore
-import { locations } from 'public/MemberPages/drop-off-locations.json';
+import { highLightCurrentTab } from 'public/MemberPages/memberMenu';
+import { l } from 'public/MemberPages/drop-off-locations.js';
 // Backend Imports
 import { cancelOrder, createReturnRequest, getOrderInvoiceURL } from 'backend/Members/member_orders.web';
 import { getProductSlugById } from 'backend/Helpers/product_helpers.web';
@@ -115,7 +115,7 @@ async function initPage(routerData) {
     });
 
     //@ts-ignore
-    $w('#locationMap').markers = locations;
+    $w('#locationMap').markers = l.locations;
 
     if (query["orderId"] || path[1]) {
         const orderId = query["orderId"] || path[1];
@@ -212,7 +212,7 @@ function setupStateEvents() {
 
         if (returnType === "dropoff") {
             //@ts-ignore
-            $w('#locationMap').markers = locations;
+            $w('#locationMap').markers = l.locations;
             $w('#selectedAddressDetails').text = "Please select a drop-off location from the map below:";
         } else {
             const {
@@ -236,7 +236,7 @@ function setupStateEvents() {
 
             //@ts-ignore
             $w('#locationMap').markers = [{
-                ...locations[0],
+                ...l.locations[0],
                 address,
                 location: {
                     longitude: parseFloat(currentAddress.lon),
@@ -423,11 +423,15 @@ function setEventListeners() {
     });
 
     $w('#downloadReceiptTextButton').onClick(async () => {
-        const { _currentOrder } = getState();
-        $w('#downloadReceiptTextButton').text = `Generating PDF...`;
-        const url = await getOrderInvoiceURL(_currentOrder._id);
-        $w('#downloadReceiptTextButton').text = `Redirecting to PDF...`;
-        to(url);
+        try {
+            const { _currentOrder } = getState();
+            $w('#downloadReceiptTextButton').text = `Generating PDF...`;
+            const url = await getOrderInvoiceURL(_currentOrder._id);
+            $w('#downloadReceiptTextButton').text = `Redirecting to PDF...`;
+            to(url);
+        } catch (err) {
+            $w('#downloadReceiptTextButton').text = `Invoice is not available yet.`;
+        }
     });
 
     $w('#addAllItemsToCart').onClick(async () => {
