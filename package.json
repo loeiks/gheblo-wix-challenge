@@ -6,7 +6,7 @@
     "react": "16.14.0"
   },
   "dependencies": {
-    "@exweiv/weiv-data": "^4.3.4-B",
+    "@exweiv/weiv-data": "^4.8.0",
     "@exweiv/wix-secret-helpers": "^1.0.1",
     "@google/generative-ai": "^0.14.0",
     "axios": "^1.7.2",
