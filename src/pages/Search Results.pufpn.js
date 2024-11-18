@@ -126,7 +126,7 @@ function setEventListeners() {
         }
 
         $item('#productImage').src = itemData.mainMedia;
-        $item('#productImage').link = `https://www.gheblo.com/product-page/${itemData.slug}/`;
+        $item('#productImage').link = `https://exweiv.wixstudio.io/gheblo/product-page/${itemData.slug}/`;
         $item('#productImage').target = "_self";
     });
 

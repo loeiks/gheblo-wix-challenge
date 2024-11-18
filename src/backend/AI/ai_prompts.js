@@ -21,7 +21,7 @@ export const aiChatPrompts = {
 
     brandDataAccess: `And lastly you also have access to brand details data in regular text format. You can use these information to answer questions about the brand or product.`,
 
-    brandData: `Brand name: Gheblo,\nBrand industry: Fashion and Apparel,\nBrand website: www.gheblo.com\nBrand location: Istanbul, Turkey\nBrand email: info@gheblo.com\nBrand phone: +90 540 100 2000.\n\n
+    brandData: `Brand name: Gheblo,\nBrand industry: Fashion and Apparel,\nBrand website: exweiv.wixstudio.io/gheblo\nBrand location: Istanbul, Turkey\nBrand email: info@gheblo.com\nBrand phone: +90 540 100 2000.\n\n
     Gheblo is a brand owned by ExWeiv and HQ is located in Istanbul, Turkey. Gheblo is a fashion and apparel brand that focuses on bringing unique experince and products to the market.`,
 
     productPageAccess: `You are almost ready to answer questions from visitors but there is one more things to know. Feature of our product page, do you know the features of Gheblo's product page?\n\n*Remember UI/UX of page will change based on device type, and also some products may show some extra details*`,

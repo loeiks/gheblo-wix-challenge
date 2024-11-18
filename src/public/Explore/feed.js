@@ -435,7 +435,7 @@ function setEventListeners(state, store) {
 
     $w('#shareVideoURL').onClick((event) => {
         const { itemData } = useScope(event);
-        copyToClipboard(`https://www.gheblo.com/explore/${itemData._id}`);
+        copyToClipboard(`https://exweiv.wixstudio.io/gheblo/explore/${itemData._id}`);
         dispatch("notify", { message: "Video URL Copied to Clipboard" });
     });
 

@@ -98,17 +98,17 @@ function setEventListeners(state, { dispatch, setState, getState, connect }) {
 
     $w('#createNewQuestion, #askQuestion').onClick(() => {
         const { slug } = getState();
-        to(`https://www.gheblo.com/questions/${slug}?create=true`);
+        to(`https://exweiv.wixstudio.io/gheblo/questions/${slug}?create=true`);
     });
 
     $w('#questionItem, #questionRepliesButton, #replyToQuestionButton').onClick((event) => {
         const { slug } = getState();
         const { itemData } = useScope(event);
-        to(`https://www.gheblo.com/questions/${slug}/${itemData._id}`);
+        to(`https://exweiv.wixstudio.io/gheblo/questions/${slug}/${itemData._id}`);
     });
 
     $w('#seeMoreQuestion').onClick(() => {
         const { slug } = getState();
-        to(`https://www.gheblo.com/questions/${slug}`);
+        to(`https://exweiv.wixstudio.io/gheblo/questions/${slug}`);
     })
 }

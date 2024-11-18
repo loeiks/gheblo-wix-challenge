@@ -5,7 +5,7 @@ $w.onReady(function () {
     $w('#searhInput').onKeyPress((event) => {
         if (event.key === "Enter" && event.target.valid) {
             addToHistory(event.target.value);
-            to(`https://www.gheblo.com/search?q=${event.target.value}`);
+            to(`https://exweiv.wixstudio.io/gheblo/search?q=${event.target.value}`);
         }
     })
 
@@ -23,13 +23,13 @@ $w.onReady(function () {
     }
 
     $w('#searchHistory').onChange(({ target }) => {
-        to(`https://www.gheblo.com/search?q=${target.value}`);
+        to(`https://exweiv.wixstudio.io/gheblo/search?q=${target.value}`);
     });
 
     $w('#searchInput').onClick(() => {
         const searchQuery = $w('#searhInput').value;
         if (searchQuery.length > 2) {
-            to(`https://www.gheblo.com/search?q=${$w('#searhInput').value}`);
+            to(`https://exweiv.wixstudio.io/gheblo/search?q=${$w('#searhInput').value}`);
         }
     })
 });

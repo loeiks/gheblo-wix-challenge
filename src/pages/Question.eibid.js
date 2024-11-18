@@ -257,11 +257,11 @@ function setEventListeners() {
 
     //@ts-ignore
     $w('#backToQuestion, #backToQuestions').onClick(() => {
-        to(`https://www.gheblo.com/questions/${path[0]}`);
+        to(`https://exweiv.wixstudio.io/gheblo/questions/${path[0]}`);
     });
 
     $w('#backToProductIcon').onClick(() => {
-        to(`https://www.gheblo.com/product-page/${path[0]}`);
+        to(`https://exweiv.wixstudio.io/gheblo/product-page/${path[0]}`);
     });
 }
 

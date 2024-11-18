@@ -202,7 +202,7 @@ function setEventListeners() {
 
             if (createdQuestion) {
                 dispatch("notify", { message: "Your question has been published successfully.", type: "success" });
-                to(`https://www.gheblo.com/questions/${product.slug}/${createdQuestion._id}`);
+                to(`https://exweiv.wixstudio.io/gheblo/questions/${product.slug}/${createdQuestion._id}`);
             } else {
                 dispatch("notify", { message: "Failed to publish question!", type: "error" });
             }
@@ -215,7 +215,7 @@ function setEventListeners() {
     $w('#editQuestion').onClick((event) => {
         const { itemData } = useScope(event);
         const { product } = getState();
-        to(`https://www.gheblo.com/questions/${product.slug}/${itemData._id}?edit=true`);
+        to(`https://exweiv.wixstudio.io/gheblo/questions/${product.slug}/${itemData._id}?edit=true`);
     });
 
     $w('#deleteQuestion').onClick(async (event) => {
@@ -243,7 +243,7 @@ function setEventListeners() {
     $w('#questionRepliesButton, #replyToQuestionButton').onClick((event) => {
         const { itemData } = useScope(event);
         const { product } = getState();
-        to(`https://www.gheblo.com/questions/${product.slug}/${itemData._id}`)
+        to(`https://exweiv.wixstudio.io/gheblo/questions/${product.slug}/${itemData._id}`)
     });
 
     $w('#searchInput').onInput(async () => {

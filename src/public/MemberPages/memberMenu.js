@@ -44,7 +44,7 @@ function preloadPages() {
 
     for (const [index, slug] of Object.entries(pagesByPath)) {
         if (slug === "account" || slug === path[0]) return null;
-        allPages.push(`https://www.gheblo.com/account/${slug}`);
+        allPages.push(`https://exweiv.wixstudio.io/gheblo/account/${slug}`);
     }
 
     prefetchPageResources({

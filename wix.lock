@@ -23,7 +23,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
     "fallbackPool": [\
       [\
         "@exweiv/weiv-data",\
-        "npm:4.8.0"\
+        "npm:4.9.7"\
       ],\
       [\
         "@exweiv/wix-secret-helpers",\
@@ -35,7 +35,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],\
       [\
         "@mongodb-js/saslprep",\
-        "npm:1.1.8"\
+        "npm:1.1.9"\
       ],\
       [\
         "@types/webidl-conversions",\
@@ -51,11 +51,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],\
       [\
         "axios",\
-        "npm:1.7.2"\
+        "npm:1.7.7"\
       ],\
       [\
         "bson",\
-        "npm:6.8.0"\
+        "npm:6.9.0"\
       ],\
       [\
         "clone",\
@@ -75,11 +75,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],\
       [\
         "follow-redirects",\
-        "virtual:c89264f6f79513b22a07db5e53adf77eba9e48634cf471fb55eb2e75d910809bbac48d9ce7a920c63c8ff2780624fff91866270d8acf614cbd0c4cb748a8b29a#npm:1.15.6"\
+        "virtual:cfbedc233d4c16068d815547ad303dec1092fdb3b8bb4ec9ab9c56bdd55b4e87650c7a525a88805756f4d2819c03abfd96a9983cfa927fedf995d1b8b879db38#npm:1.15.9"\
       ],\
       [\
         "form-data",\
-        "npm:4.0.0"\
+        "npm:4.0.1"\
       ],\
       [\
         "lodash",\
@@ -87,7 +87,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],\
       [\
         "marked",\
-        "npm:13.0.2"\
+        "npm:13.0.3"\
       ],\
       [\
         "memory-pager",\
@@ -107,7 +107,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],\
       [\
         "mongodb",\
-        "virtual:fd29e41e2b7502e38dcc7cf3be404db21c33c2aad2b5339e4e55cfb8f32096965451310fb62b5fef7d13a368fb3a19a2640f959d299c730dff2a73c0ef10a5dd#npm:6.8.0"\
+        "virtual:c8ae4ef8f7dcd38437195b116376e18f68f20a91553ad3f3fef31d5b2722d71070fabb1f737e5ec37eb67b82b5333db324317f9d5d6764c296d260e7b9c54a02#npm:6.10.0"\
       ],\
       [\
         "mongodb-connection-string-url",\
@@ -143,7 +143,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],\
       [\
         "typescript",\
-        "patch:typescript@npm%3A5.5.4#~builtin<compat/typescript>::version=5.5.4&hash=85af82"\
+        "patch:typescript@npm%3A5.6.3#~builtin<compat/typescript>::version=5.6.3&hash=85af82"\
       ],\
       [\
         "uuid",\
@@ -163,14 +163,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         [null, {\
           "packageLocation": "./",\
           "packageDependencies": [\
-            ["@exweiv/weiv-data", "npm:4.8.0"],\
+            ["@exweiv/weiv-data", "npm:4.9.7"],\
             ["@exweiv/wix-secret-helpers", "npm:1.0.1"],\
             ["@google/generative-ai", "npm:0.14.1"],\
-            ["axios", "npm:1.7.2"],\
+            ["axios", "npm:1.7.7"],\
             ["lodash", "npm:4.17.21"],\
-            ["marked", "npm:13.0.2"],\
+            ["marked", "npm:13.0.3"],\
             ["moment", "npm:2.30.1"],\
-            ["mongodb", "virtual:fd29e41e2b7502e38dcc7cf3be404db21c33c2aad2b5339e4e55cfb8f32096965451310fb62b5fef7d13a368fb3a19a2640f959d299c730dff2a73c0ef10a5dd#npm:6.8.0"],\
+            ["mongodb", "virtual:c8ae4ef8f7dcd38437195b116376e18f68f20a91553ad3f3fef31d5b2722d71070fabb1f737e5ec37eb67b82b5333db324317f9d5d6764c296d260e7b9c54a02#npm:6.10.0"],\
             ["node-cache", "npm:5.1.2"],\
             ["repeater-scope", "npm:3.0.0"],\
             ["storeon-velo", "npm:4.1.3"],\
@@ -180,13 +180,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@exweiv/weiv-data", [\
-        ["npm:4.8.0", {\
-          "packageLocation": "../dynamic-modules/yarn-cache/cache/@exweiv-weiv-data-npm-4.8.0-fd29e41e2b-8c0.zip/node_modules/@exweiv/weiv-data/",\
+        ["npm:4.9.7", {\
+          "packageLocation": "../dynamic-modules/yarn-cache/cache/@exweiv-weiv-data-npm-4.9.7-c8ae4ef8f7-8c0.zip/node_modules/@exweiv/weiv-data/",\
           "packageDependencies": [\
-            ["@exweiv/weiv-data", "npm:4.8.0"],\
+            ["@exweiv/weiv-data", "npm:4.9.7"],\
             ["crypto-js", "npm:4.2.0"],\
             ["lodash", "npm:4.17.21"],\
-            ["mongodb", "virtual:fd29e41e2b7502e38dcc7cf3be404db21c33c2aad2b5339e4e55cfb8f32096965451310fb62b5fef7d13a368fb3a19a2640f959d299c730dff2a73c0ef10a5dd#npm:6.8.0"],\
+            ["mongodb", "virtual:c8ae4ef8f7dcd38437195b116376e18f68f20a91553ad3f3fef31d5b2722d71070fabb1f737e5ec37eb67b82b5333db324317f9d5d6764c296d260e7b9c54a02#npm:6.10.0"],\
             ["node-cache", "npm:5.1.2"],\
             ["uuid", "npm:10.0.0"]\
           ],\
@@ -199,7 +199,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@exweiv/wix-secret-helpers", "npm:1.0.1"],\
             ["node-cache", "npm:5.1.2"],\
-            ["typescript", "patch:typescript@npm%3A5.5.4#~builtin<compat/typescript>::version=5.5.4&hash=85af82"]\
+            ["typescript", "patch:typescript@npm%3A5.6.3#~builtin<compat/typescript>::version=5.6.3&hash=85af82"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -214,10 +214,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@mongodb-js/saslprep", [\
-        ["npm:1.1.8", {\
-          "packageLocation": "../dynamic-modules/yarn-cache/cache/@mongodb-js-saslprep-npm-1.1.8-d183957f9d-8c0.zip/node_modules/@mongodb-js/saslprep/",\
+        ["npm:1.1.9", {\
+          "packageLocation": "../dynamic-modules/yarn-cache/cache/@mongodb-js-saslprep-npm-1.1.9-33fa4a74a7-8c0.zip/node_modules/@mongodb-js/saslprep/",\
           "packageDependencies": [\
-            ["@mongodb-js/saslprep", "npm:1.1.8"],\
+            ["@mongodb-js/saslprep", "npm:1.1.9"],\
             ["sparse-bitfield", "npm:3.0.3"]\
           ],\
           "linkType": "HARD"\
@@ -252,22 +252,22 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["axios", [\
-        ["npm:1.7.2", {\
-          "packageLocation": "../dynamic-modules/yarn-cache/cache/axios-npm-1.7.2-c89264f6f7-8c0.zip/node_modules/axios/",\
+        ["npm:1.7.7", {\
+          "packageLocation": "../dynamic-modules/yarn-cache/cache/axios-npm-1.7.7-cfbedc233d-8c0.zip/node_modules/axios/",\
           "packageDependencies": [\
-            ["axios", "npm:1.7.2"],\
-            ["follow-redirects", "virtual:c89264f6f79513b22a07db5e53adf77eba9e48634cf471fb55eb2e75d910809bbac48d9ce7a920c63c8ff2780624fff91866270d8acf614cbd0c4cb748a8b29a#npm:1.15.6"],\
-            ["form-data", "npm:4.0.0"],\
+            ["axios", "npm:1.7.7"],\
+            ["follow-redirects", "virtual:cfbedc233d4c16068d815547ad303dec1092fdb3b8bb4ec9ab9c56bdd55b4e87650c7a525a88805756f4d2819c03abfd96a9983cfa927fedf995d1b8b879db38#npm:1.15.9"],\
+            ["form-data", "npm:4.0.1"],\
             ["proxy-from-env", "npm:1.1.0"]\
           ],\
           "linkType": "HARD"\
         }]\
       ]],\
       ["bson", [\
-        ["npm:6.8.0", {\
-          "packageLocation": "../dynamic-modules/yarn-cache/cache/bson-npm-6.8.0-62b8cfe2a5-8c0.zip/node_modules/bson/",\
+        ["npm:6.9.0", {\
+          "packageLocation": "../dynamic-modules/yarn-cache/cache/bson-npm-6.9.0-e3e1d3c2c6-8c0.zip/node_modules/bson/",\
           "packageDependencies": [\
-            ["bson", "npm:6.8.0"]\
+            ["bson", "npm:6.9.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -310,17 +310,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["follow-redirects", [\
-        ["npm:1.15.6", {\
-          "packageLocation": "../dynamic-modules/yarn-cache/cache/follow-redirects-npm-1.15.6-50635fe51d-8c0.zip/node_modules/follow-redirects/",\
+        ["npm:1.15.9", {\
+          "packageLocation": "../dynamic-modules/yarn-cache/cache/follow-redirects-npm-1.15.9-539785d34c-8c0.zip/node_modules/follow-redirects/",\
           "packageDependencies": [\
-            ["follow-redirects", "npm:1.15.6"]\
+            ["follow-redirects", "npm:1.15.9"]\
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:c89264f6f79513b22a07db5e53adf77eba9e48634cf471fb55eb2e75d910809bbac48d9ce7a920c63c8ff2780624fff91866270d8acf614cbd0c4cb748a8b29a#npm:1.15.6", {\
-          "packageLocation": "./.yarn/__virtual__/follow-redirects-virtual-d6f128c480/2/dynamic-modules/yarn-cache/cache/follow-redirects-npm-1.15.6-50635fe51d-8c0.zip/node_modules/follow-redirects/",\
+        ["virtual:cfbedc233d4c16068d815547ad303dec1092fdb3b8bb4ec9ab9c56bdd55b4e87650c7a525a88805756f4d2819c03abfd96a9983cfa927fedf995d1b8b879db38#npm:1.15.9", {\
+          "packageLocation": "./.yarn/__virtual__/follow-redirects-virtual-334ade9a15/2/dynamic-modules/yarn-cache/cache/follow-redirects-npm-1.15.9-539785d34c-8c0.zip/node_modules/follow-redirects/",\
           "packageDependencies": [\
-            ["follow-redirects", "virtual:c89264f6f79513b22a07db5e53adf77eba9e48634cf471fb55eb2e75d910809bbac48d9ce7a920c63c8ff2780624fff91866270d8acf614cbd0c4cb748a8b29a#npm:1.15.6"],\
+            ["follow-redirects", "virtual:cfbedc233d4c16068d815547ad303dec1092fdb3b8bb4ec9ab9c56bdd55b4e87650c7a525a88805756f4d2819c03abfd96a9983cfa927fedf995d1b8b879db38#npm:1.15.9"],\
             ["@types/debug", null],\
             ["debug", null]\
           ],\
@@ -332,10 +332,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["form-data", [\
-        ["npm:4.0.0", {\
-          "packageLocation": "../dynamic-modules/yarn-cache/cache/form-data-npm-4.0.0-916facec2d-8c0.zip/node_modules/form-data/",\
+        ["npm:4.0.1", {\
+          "packageLocation": "../dynamic-modules/yarn-cache/cache/form-data-npm-4.0.1-f1a27a1c2e-8c0.zip/node_modules/form-data/",\
           "packageDependencies": [\
-            ["form-data", "npm:4.0.0"],\
+            ["form-data", "npm:4.0.1"],\
             ["asynckit", "npm:0.4.0"],\
             ["combined-stream", "npm:1.0.8"],\
             ["mime-types", "npm:2.1.35"]\
@@ -353,10 +353,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["marked", [\
-        ["npm:13.0.2", {\
-          "packageLocation": "../dynamic-modules/yarn-cache/cache/marked-npm-13.0.2-27e935a6d5-8c0.zip/node_modules/marked/",\
+        ["npm:13.0.3", {\
+          "packageLocation": "../dynamic-modules/yarn-cache/cache/marked-npm-13.0.3-0c202abd89-8c0.zip/node_modules/marked/",\
           "packageDependencies": [\
-            ["marked", "npm:13.0.2"]\
+            ["marked", "npm:13.0.3"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -399,19 +399,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["mongodb", [\
-        ["npm:6.8.0", {\
-          "packageLocation": "../dynamic-modules/yarn-cache/cache/mongodb-npm-6.8.0-f82782f3b7-8c0.zip/node_modules/mongodb/",\
+        ["npm:6.10.0", {\
+          "packageLocation": "../dynamic-modules/yarn-cache/cache/mongodb-npm-6.10.0-b914157c35-8c0.zip/node_modules/mongodb/",\
           "packageDependencies": [\
-            ["mongodb", "npm:6.8.0"]\
+            ["mongodb", "npm:6.10.0"]\
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:fd29e41e2b7502e38dcc7cf3be404db21c33c2aad2b5339e4e55cfb8f32096965451310fb62b5fef7d13a368fb3a19a2640f959d299c730dff2a73c0ef10a5dd#npm:6.8.0", {\
-          "packageLocation": "./.yarn/__virtual__/mongodb-virtual-c26199f117/2/dynamic-modules/yarn-cache/cache/mongodb-npm-6.8.0-f82782f3b7-8c0.zip/node_modules/mongodb/",\
+        ["virtual:c8ae4ef8f7dcd38437195b116376e18f68f20a91553ad3f3fef31d5b2722d71070fabb1f737e5ec37eb67b82b5333db324317f9d5d6764c296d260e7b9c54a02#npm:6.10.0", {\
+          "packageLocation": "./.yarn/__virtual__/mongodb-virtual-7f2ca8db06/2/dynamic-modules/yarn-cache/cache/mongodb-npm-6.10.0-b914157c35-8c0.zip/node_modules/mongodb/",\
           "packageDependencies": [\
-            ["mongodb", "virtual:fd29e41e2b7502e38dcc7cf3be404db21c33c2aad2b5339e4e55cfb8f32096965451310fb62b5fef7d13a368fb3a19a2640f959d299c730dff2a73c0ef10a5dd#npm:6.8.0"],\
+            ["mongodb", "virtual:c8ae4ef8f7dcd38437195b116376e18f68f20a91553ad3f3fef31d5b2722d71070fabb1f737e5ec37eb67b82b5333db324317f9d5d6764c296d260e7b9c54a02#npm:6.10.0"],\
             ["@aws-sdk/credential-providers", null],\
-            ["@mongodb-js/saslprep", "npm:1.1.8"],\
+            ["@mongodb-js/saslprep", "npm:1.1.9"],\
             ["@mongodb-js/zstd", null],\
             ["@types/aws-sdk__credential-providers", null],\
             ["@types/gcp-metadata", null],\
@@ -420,7 +420,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/mongodb-js__zstd", null],\
             ["@types/snappy", null],\
             ["@types/socks", null],\
-            ["bson", "npm:6.8.0"],\
+            ["bson", "npm:6.9.0"],\
             ["gcp-metadata", null],\
             ["kerberos", null],\
             ["mongodb-client-encryption", null],\
@@ -525,10 +525,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["typescript", [\
-        ["patch:typescript@npm%3A5.5.4#~builtin<compat/typescript>::version=5.5.4&hash=85af82", {\
-          "packageLocation": "../dynamic-modules/yarn-cache/cache/typescript-patch-c41460ab53-8c0.zip/node_modules/typescript/",\
+        ["patch:typescript@npm%3A5.6.3#~builtin<compat/typescript>::version=5.6.3&hash=85af82", {\
+          "packageLocation": "../dynamic-modules/yarn-cache/cache/typescript-patch-e914be566b-8c0.zip/node_modules/typescript/",\
           "packageDependencies": [\
-            ["typescript", "patch:typescript@npm%3A5.5.4#~builtin<compat/typescript>::version=5.5.4&hash=85af82"]\
+            ["typescript", "patch:typescript@npm%3A5.6.3#~builtin<compat/typescript>::version=5.6.3&hash=85af82"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -538,14 +538,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./",\
           "packageDependencies": [\
             ["user-code", "workspace:."],\
-            ["@exweiv/weiv-data", "npm:4.8.0"],\
+            ["@exweiv/weiv-data", "npm:4.9.7"],\
             ["@exweiv/wix-secret-helpers", "npm:1.0.1"],\
             ["@google/generative-ai", "npm:0.14.1"],\
-            ["axios", "npm:1.7.2"],\
+            ["axios", "npm:1.7.7"],\
             ["lodash", "npm:4.17.21"],\
-            ["marked", "npm:13.0.2"],\
+            ["marked", "npm:13.0.3"],\
             ["moment", "npm:2.30.1"],\
-            ["mongodb", "virtual:fd29e41e2b7502e38dcc7cf3be404db21c33c2aad2b5339e4e55cfb8f32096965451310fb62b5fef7d13a368fb3a19a2640f959d299c730dff2a73c0ef10a5dd#npm:6.8.0"],\
+            ["mongodb", "virtual:c8ae4ef8f7dcd38437195b116376e18f68f20a91553ad3f3fef31d5b2722d71070fabb1f737e5ec37eb67b82b5333db324317f9d5d6764c296d260e7b9c54a02#npm:6.10.0"],\
             ["node-cache", "npm:5.1.2"],\
             ["repeater-scope", "npm:3.0.0"],\
             ["storeon-velo", "npm:4.1.3"],\

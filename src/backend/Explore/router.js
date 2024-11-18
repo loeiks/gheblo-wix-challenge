@@ -54,13 +54,13 @@ export async function explore_SiteMap(sitemapRequest) {
             entry.changeFrequency = "daily";
             entry.pageName = `${video.title} | Gheblo Explore`;
             entry.lastModified = video._updatedDate;
-            entry.url = `https://www.gheblo.com/explore/${video._id}`;
+            entry.url = `https://exweiv.wixstudio.io/gheblo/explore/${video._id}`;
             return entry;
         });
 
         const homePage = new WixRouterSitemapEntry();
         homePage.title = "Explore Feed | Gheblo";
-        homePage.url = "https://www.gheblo.com/explore";
+        homePage.url = "https://exweiv.wixstudio.io/gheblo/explore";
 
         return [...sitemapEntries, homePage];
     } catch (err) {

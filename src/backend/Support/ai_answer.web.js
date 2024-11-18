@@ -85,7 +85,7 @@ const aiPrompts = {
     
     So template is above, when referencing articles use [articleUrl](articleUrl) template in markdown link style.`,
 
-    brandData: `Brand name: Gheblo,\nBrand industry: Fashion and Apparel,\nBrand website: www.gheblo.com\nBrand location: Istanbul, Turkey\nBrand email: info@gheblo.com\nBrand phone: +90 540 100 2000.\n\n
+    brandData: `Brand name: Gheblo,\nBrand industry: Fashion and Apparel,\nBrand website: exweiv.wixstudio.io/gheblo\nBrand location: Istanbul, Turkey\nBrand email: info@gheblo.com\nBrand phone: +90 540 100 2000.\n\n
     Gheblo is a brand owned by ExWeiv and HQ is located in Istanbul, Turkey. Gheblo is a fashion and apparel brand that focuses on bringing unique experince and products to the market.`,
 
     readyToAnswer: `Nice job! Now you are ready to answer the support center questions asked by Gheblo members/visitors. Remember you will have JSON data for each article, and if there are more than one you will get all of them inside of an array. Now you can answer the question based on the instoructions we've talked before.

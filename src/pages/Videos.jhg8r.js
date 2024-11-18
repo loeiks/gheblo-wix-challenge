@@ -220,7 +220,7 @@ function setupStateEvents() {
 function setEventListeners() {
     $w('#videosRepeater').onItemReady(($item, itemData, index) => {
         $item('#videoPoster').src = itemData.thumbnailUrl;
-        $item('#videoPoster').link = `https://www.gheblo.com/explore/${itemData._id}`;
+        $item('#videoPoster').link = `https://exweiv.wixstudio.io/gheblo/explore/${itemData._id}`;
         $item('#videoPoster').target = "_blank";
         $item('#videoTitle').text = itemData.title;
     });
@@ -332,7 +332,7 @@ function setEventListeners() {
 
     $w('#shareVideoURL').onClick((event) => {
         const { itemData } = useScope(event);
-        const url = `https://www.gheblo.com/explore/${itemData._id}`;
+        const url = `https://exweiv.wixstudio.io/gheblo/explore/${itemData._id}`;
         copyToClipboard(url);
         dispatch("notify", { message: "Video URL has been copied to your clipboard.", type: "success" });
     })

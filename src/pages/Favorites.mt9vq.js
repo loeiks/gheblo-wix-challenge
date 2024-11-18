@@ -92,7 +92,7 @@ function setEventListeners() {
         const { mainMedia, name, formattedDiscountedPrice, productPageUrl } = itemData.product[0].entity;
 
         $item('#productImage').src = mainMedia;
-        $item('#productImage').link = `https://www.gheblo.com${productPageUrl}`;
+        $item('#productImage').link = `https://exweiv.wixstudio.io/gheblo${productPageUrl}`;
         $item('#productImage').target = "_blank";
         $item('#productImage').tooltip = `Click to see ${name} in new tab`;
 
@@ -128,6 +128,6 @@ function setEventListeners() {
 
     $w('#productName').onClick((event) => {
         const { itemData, } = useScope(event);
-        to(`https://www.gheblo.com${itemData.product[0].entity.productPageUrl}`);
+        to(`https://exweiv.wixstudio.io/gheblo${itemData.product[0].entity.productPageUrl}`);
     });
 }

@@ -11,6 +11,6 @@ $w.onReady(function () {
 
     setTimeout(() => {
         // Redirect to order details page with orderId from the URL path
-        to(`https://www.gheblo.com/account/orders?orderId=${path[1]}`);
+        to(`https://exweiv.wixstudio.io/gheblo/account/orders?orderId=${path[1]}`);
     }, 4000);
 });

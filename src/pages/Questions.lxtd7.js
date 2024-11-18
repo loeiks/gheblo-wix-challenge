@@ -135,9 +135,9 @@ function setEventListeners() {
         const { slug } = itemData.product[0].entity;
 
         if (event.target.id === "editQuestion") {
-            to(`https://www.gheblo.com/questions/${slug}/${itemData._id}?edit=true`);
+            to(`https://exweiv.wixstudio.io/gheblo/questions/${slug}/${itemData._id}?edit=true`);
         } else {
-            to(`https://www.gheblo.com/questions/${slug}/${itemData.questionId}?editReply=${itemData._id}`);
+            to(`https://exweiv.wixstudio.io/gheblo/questions/${slug}/${itemData.questionId}?editReply=${itemData._id}`);
         }
     });
 
@@ -145,7 +145,7 @@ function setEventListeners() {
     $w('#replyText, #questionText').onClick((event) => {
         const { itemData } = useScope(event);
         const { slug } = itemData.product[0].entity;
-        to(`https://www.gheblo.com/questions/${slug}/${itemData._id}`);
+        to(`https://exweiv.wixstudio.io/gheblo/questions/${slug}/${itemData._id}`);
     });
 
     //@ts-ignore

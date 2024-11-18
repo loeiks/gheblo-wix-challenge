@@ -64,7 +64,7 @@ function setEventListeners() {
         }
 
         $item('#productImage').src = itemData.mainMedia;
-        $item('#productImage').link = `https://www.gheblo.com/product-page/${itemData.slug}/`;
+        $item('#productImage').link = `https://exweiv.wixstudio.io/gheblo/product-page/${itemData.slug}/`;
         $item('#productImage').target = "_self";
     });
 
@@ -77,11 +77,11 @@ function setEventListeners() {
 
     $w('#videoItem').onClick((event) => {
         const { itemData } = useScope(event);
-        to(`https://www.gheblo.com/explore/${itemData._id}/`);
+        to(`https://exweiv.wixstudio.io/gheblo/explore/${itemData._id}/`);
     });
 
     $w('#exploreVideosBox').onClick(() => {
-        to("https://www.gheblo.com/explore/");
+        to("https://exweiv.wixstudio.io/gheblo/explore/");
     })
 
     $w('#becomeMemberText').onClick(() => {
