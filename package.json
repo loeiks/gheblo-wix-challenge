@@ -8,7 +8,7 @@
     "@exweiv/weiv-data": "^4.8.0",
     "@exweiv/wix-secret-helpers": "^1.0.1",
     "@google/generative-ai": "^0.14.0",
-    "axios": "^1.7.2",
+    "axios": "^1.7.4",
     "lodash": "4.17.21",
     "marked": "^13.0.1",
     "moment": "^2.30.1",
